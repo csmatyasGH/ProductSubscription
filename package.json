@@ -1,0 +1,11 @@
+{
+  "name": "ProductSubscriptionProject", 
+
+  "scripts": {
+    "prettier": "prettier"
+  },
+  "devDependencies": {
+    "prettier": "^1.19.1",
+    "prettier-plugin-apex": "^1.1.0"
+  }
+}

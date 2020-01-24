@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>QuoteItem_Value__c</fullName>
+    <description>filled based on the Original QuoteLine Item NetTotal_Rounded__c</description>
+    <externalId>false</externalId>
+    <label>QuoteItem_Value</label>
+    <precision>12</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

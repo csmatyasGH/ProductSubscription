@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>BuildSubscriptionPOC</members>
+        <members>ProductSubscriptionUtility</members>        
+        <members>BuildSubscription_test</members>    
+
+
+       <!--members>ReplicateProductSubscriptionPOC</members>       
+       <members>AggregateResultIterable</members>                
+       <members>AggregateResultIterator</members-->  
+
+       <members>batchReplicateProductSubscriptionPOC</members>             
+        <name>ApexClass</name>
+    </types>
+
+    <types>
+        <members>ProcessPSBuilderTrigger</members>
+        <name>ApexTrigger</name>
+    </types>    
+
+    <types>
+        <members>ProductSubscription_POC__c</members>
+        <members>Product_SubscriptionItem__c</members>        
+        <name>CustomObject</name>
+    </types>   
+
+    <types>
+        <members>ProductSubscription__c.External_Id__c</members>
+        <name>CustomField</name>
+    </types>      
+
+    <types>
+        <!--members>ProductSubscriptionBuilder</members -->       
+        <!--members>BuildSubscriptionsFromOpp</members-->           
+        <name>Flow</name>
+    </types>    
+
+    <types>
+        <members>ProductSubscription__c.Build_POC_Prod_Subscr</members>
+        <name>WebLink</name>
+    </types>    
+
+    <types>
+        <members>Opportunity.BuildSubscrPOC</members>
+        <name>QuickAction</name>
+    </types>    
+
+    <types>
+        <!--members>ProductSubscription_POC__c-ProductSubscription_POC Layout</members-->      
+        
+        <members>Product_SubscriptionItem__c-Product_SubscriptionItem Layout</members>          
+        <name>Layout</name>
+    </types>  
+
+    <types>
+        <members>ProductSubscription_POC__c</members>
+        <name>CustomTab</name>
+    </types>       
+
+    <!--types>
+        <members>ProductSubscription_POC__c</members>
+        <name>ApexPage</name>
+    </types-->         
+    
+    <!--types>   
+        <members>Admin</members>
+        <name>Profile</name>
+    </types-->     
+    <version>47.0</version>
+</Package>

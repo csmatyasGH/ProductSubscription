@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OriginQuoteItem__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
+    <label>Origin Quote Line Item</label>
+    <referenceTo>QuoteLineItem</referenceTo>
+    <relationshipLabel>Product_SubscriptionItems</relationshipLabel>
+    <relationshipName>Product_SubscriptionItems</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

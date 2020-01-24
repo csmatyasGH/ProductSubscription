@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <externalId>false</externalId>
+    <label>ConsolidationType</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>CONTINGENT</fullName>
+                <default>false</default>
+                <label>CONTINGENT</label>
+            </value>
+            <value>
+                <fullName>DEBOOKED</fullName>
+                <default>false</default>
+                <label>DEBOOKED</label>
+            </value>
+            <value>
+                <fullName>OVERLAP</fullName>
+                <default>false</default>
+                <label>OVERLAP</label>
+            </value>
+            <value>
+                <fullName>AMMENDED</fullName>
+                <default>false</default>
+                <label>AMMENDED</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
