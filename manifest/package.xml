@@ -22,11 +22,17 @@
     <types>
         <members>ProductSubscription_POC__c</members>
         <members>Product_SubscriptionItem__c</members>        
+        <name>CustomField</name>
+    </types>  
+
+    <types>
+        <members>ProductSubscription_POC__c</members>
+        <members>Product_SubscriptionItem__c</members>        
         <name>CustomObject</name>
     </types>   
 
     <types>
-        <members>ProductSubscription__c.External_Id__c</members>
+        <members>ProductSubscription__c.Number_of_Terms__c</members>
         <name>CustomField</name>
     </types>      
 
