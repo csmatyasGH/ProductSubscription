@@ -53,6 +53,16 @@ Map<Date,List<Product_SubscriptionItem__c>> mapDate2Items = new Map<Date,List<Pr
       newPOC.Account__c = accId;
       newPOC.Product__c = prod.id;
       newPOC.ExternalID__c = accId + '_' + prod.id;
+
+      if(prod.R00N70000001lXB6EAM__r == NULL)
+         {
+         newPOC.Number_of_Expected_Items__c = 0;
+         }
+      else 
+         {
+        newPOC.Number_of_Expected_Items__c = prod.R00N70000001lXB6EAM__r.size();
+         }   
+
       PS_POC2Upsert.add(newPOC);  
       }
   
@@ -175,6 +185,16 @@ Map<Date,List<Product_SubscriptionItem__c>> mapDate2Items = new Map<Date,List<Pr
       newPOC.Account__c = accId;
       newPOC.Product__c = prod.id;
       newPOC.ExternalID__c = accId + '_' + prod.id;
+
+      if(prod.R00N70000001lXB6EAM__r == NULL)
+         {
+         newPOC.Number_of_Expected_Items__c = 0;
+         }
+      else 
+         {
+        newPOC.Number_of_Expected_Items__c = prod.R00N70000001lXB6EAM__r.size();
+         }   
+
       PS_POC2Upsert.add(newPOC);  
       }
   
@@ -407,8 +427,8 @@ List<ProductSubscription__c> lst_PS2Create = new List<ProductSubscription__c> ()
 
 //exclue Empty Start/End Date, Filter Opp stage, Pick only OLI with QLI an think fr more folters
 List<Opportunity> opps = [Select Id, Name,Source_Opportunity__c,Type,SBQQ__PrimaryQuote__c, SBQQ__PrimaryQuote__r.SBQQ__Account__c 
-                         ,(Select id,Account__c,Percentage__c  from Opportunity_Account_Links__r where Percentage__c != NULL and Percentage__c != 0)
-                         ,(Select ID,Product2ID, SBQQ__QuoteLine__c
+                         ,(Select id,Account__c,Account__r.Name, Percentage__c  from Opportunity_Account_Links__r where Percentage__c != NULL and Percentage__c != 0)
+                         ,(Select ID,Product2ID,Product2.Name, SBQQ__QuoteLine__c
                            ,SBQQ__QuoteLine__r.SBQQ__StartDate__c,SBQQ__QuoteLine__r.SBQQ__EndDate__c  
                            ,SBQQ__QuoteLine__r.SBQQ__NetPrice__c  ,SBQQ__QuoteLine__r.Net_Total_Rounded__c, SBQQ__QuoteLine__r.SBQQ__ListPrice__c  
                            ,SBQQ__QuoteLine__r.SBQQ__Quantity__c,SBQQ__QuoteLine__r.SBQQ__SegmentIndex__c                       
@@ -424,12 +444,14 @@ for(Opportunity opp :opps)
    {
    //if we do not have AOLs we use this AccountID
    accId = opp.SBQQ__PrimaryQuote__r.SBQQ__Account__c;
+   System.Debug('CSABAX parent Account : ' + accId + ' ProdCount : ' + opp.OpportunityLineItems.size() + ' onBehalf Count:  ' + opp.Opportunity_Account_Links__r.size());
    for(OpportunityLineItem oli :opp.OpportunityLineItems)
       {
       prodId.add(oli.Product2ID); //this Set is used when no AOL and for child Accounts independent deal
+      System.Debug('CSABAX build POC for Prod: ' + oli.Product2.Name);
       for(OpportunityAccountLink__c oal :opp.Opportunity_Account_Links__r)
           {
-
+          System.Debug('CSABAX build POC  for Account: ' + oal.Account__r.Name + ' with Percentage:  ' + oal.Percentage__c);
           String extID4PS = oal.Account__c + '_' + oli.Product2ID;
           ProductSubscription_POC__c refPOC = new ProductSubscription_POC__c(ExternalID__c = extID4PS);
           refPOC.Account__c = oal.Account__c;
@@ -474,13 +496,13 @@ if(lst_PS2Create.size() > 0)
 
 if(mapAcc2Prod.size() == 0)
    {
-   //we do not have AOLs create POC/Itesm for the main Account
+   System.Debug('CSABAX we do not have AOLs create POC/Itesm for the main Account');
     buildSubscriptionFromAccount_Products(accId,prodId,NULL);  
     return;  
    }
 else 
    {
-  //for each Account create the "own" POC/Items
+  System.Debug('CSABAX for each on-behalf Account create the own POC/Items');
   for(ID acc_Id :mapAcc2Prod.keySet())
      {
      PSIs2Upsert.addAll(buildSubscriptionFromAccount_ProductsOAL(acc_Id,mapAcc2Prod.get(accId),NULL));  

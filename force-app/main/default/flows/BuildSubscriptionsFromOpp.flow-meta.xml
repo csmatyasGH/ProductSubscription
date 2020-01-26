@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Build_POC_from_Subscription</name>
         <label>Build POC  from Subscription</label>
-        <locationX>698</locationX>
-        <locationY>273</locationY>
+        <locationX>798</locationX>
+        <locationY>403</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -32,8 +32,8 @@
     <actionCalls>
         <name>BuildProdSubs4Opp</name>
         <label>BuildProdSubs4Opp</label>
-        <locationX>693</locationX>
-        <locationY>91</locationY>
+        <locationX>812</locationX>
+        <locationY>92</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -49,6 +49,32 @@
             <name>operation</name>
             <value>
                 <stringValue>BuildFromOpp</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_onBehalf_Op_POC</name>
+        <label>Create onBehalf Op POC</label>
+        <locationX>805</locationX>
+        <locationY>247</locationY>
+        <actionName>ProductSubscriptionUtility</actionName>
+        <actionType>apex</actionType>
+        <inputParameters>
+            <name>operation</name>
+            <value>
+                <stringValue>BuildFromOpp</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>oppID</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>isOnBehalf</name>
+            <value>
+                <elementReference>onBehalf</elementReference>
             </value>
         </inputParameters>
     </actionCalls>
@@ -73,9 +99,34 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>BuildProdSubs4Opp</targetReference>
+                <targetReference>IsOnBehalf</targetReference>
             </connector>
             <label>isOpp</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>IsOnBehalf</name>
+        <label>IsOnBehalf</label>
+        <locationX>549</locationX>
+        <locationY>97</locationY>
+        <defaultConnector>
+            <targetReference>BuildProdSubs4Opp</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>OwnDeal</defaultConnectorLabel>
+        <rules>
+            <name>onBehalf</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>onBehalfOpp</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_onBehalf_Op_POC</targetReference>
+            </connector>
+            <label>onBehalf</label>
         </rules>
     </decisions>
     <description>build PS POC  from Opp or PS</description>
@@ -97,8 +148,8 @@
     <recordLookups>
         <name>Get_PS_record</name>
         <label>Get PS record</label>
-        <locationX>379</locationX>
-        <locationY>274</locationY>
+        <locationX>387</locationX>
+        <locationY>402</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Build_POC_from_Subscription</targetReference>
@@ -127,8 +178,8 @@
     <screens>
         <name>Product_Subscription_Items</name>
         <label>Product Subscription Items</label>
-        <locationX>1076</locationX>
-        <locationY>273</locationY>
+        <locationX>1071</locationX>
+        <locationY>403</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -237,11 +288,19 @@
             <targetReference>checkSource</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <description>AccpountId</description>
         <name>AccId</name>
         <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Ths Opp close Deal on behalf  of othet Accounts</description>
+        <name>onBehalfOpp</name>
+        <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>

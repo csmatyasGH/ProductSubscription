@@ -26,6 +26,7 @@ ID accId;
 Set<ID> prodIDs = new Set<ID>();
 ID psId;
 Id oppId;
+Boolean isOnBehalf = false;
 
 for(ProductSubscriptionBuilder psb :psbs)
   { 
@@ -42,6 +43,7 @@ for(ProductSubscriptionBuilder psb :psbs)
    if(operation == 'BuildFromOpp')
       {
       oppId = psb.oppId;
+      isOnBehalf = psb.isOnBehalf;
       }  
 
    if(operation == 'BuildFromProdSubsc')
@@ -72,7 +74,15 @@ if(operation == 'Reset')
 
 if(operation == 'BuildFromOpp') 
   {
-  BuildSubscriptionPOC.buildSubscriptionFromOpportunity4AppProds(oppId);
+   if(isOnBehalf == false)
+      {
+      BuildSubscriptionPOC.buildSubscriptionFromOpportunity4AppProds(oppId);
+      }  
+   else 
+      {
+      BuildSubscriptionPOC.buildSubscriptionFromOpportunityAccountLink(oppId);      
+      } 
+
   }
 
  if(operation == 'BuildFromProdSubsc') 
@@ -729,6 +739,9 @@ global class ProductSubscriptionBuilder
 
     @InvocableVariable
     global ID oppID;         
+
+    @InvocableVariable
+    global Boolean isOnBehalf;     
 
     @InvocableVariable(required=true)
     global String operation;

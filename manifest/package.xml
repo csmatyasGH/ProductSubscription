@@ -6,9 +6,8 @@
         <members>BuildSubscription_test</members>    
 
 
-       <!--members>ReplicateProductSubscriptionPOC</members>       
-       <members>AggregateResultIterable</members>                
-       <members>AggregateResultIterator</members-->  
+       <!--members>ReplicateProductSubscriptionPOC</members-->       
+
 
        <members>batchReplicateProductSubscriptionPOC</members>             
         <name>ApexClass</name>
@@ -22,23 +21,19 @@
     <types>
         <members>ProductSubscription_POC__c</members>
         <members>Product_SubscriptionItem__c</members>        
-        <name>CustomField</name>
-    </types>  
-
-    <types>
-        <members>ProductSubscription_POC__c</members>
-        <members>Product_SubscriptionItem__c</members>        
         <name>CustomObject</name>
     </types>   
 
     <types>
         <members>ProductSubscription__c.Number_of_Terms__c</members>
+        <members>Opportunity.OnBehalfDealCount__c</members>
+       <members>Opportunity.HasonBehalf__c</members>
         <name>CustomField</name>
     </types>      
 
     <types>
         <!--members>ProductSubscriptionBuilder</members -->       
-        <!--members>BuildSubscriptionsFromOpp</members-->           
+        <members>BuildSubscriptionsFromOpp</members>           
         <name>Flow</name>
     </types>    
 
