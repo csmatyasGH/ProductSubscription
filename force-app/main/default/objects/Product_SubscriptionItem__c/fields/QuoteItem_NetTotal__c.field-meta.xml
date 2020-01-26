@@ -5,6 +5,7 @@
     <externalId>false</externalId>
     <formula>OriginQuote_Line__r.Net_Total_Rounded__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Value inherited from Originator QuoteLineItem&#39;s Net_Total_Rounded__c field.</inlineHelpText>
     <label>QuoteItem_NetTotal</label>
     <precision>18</precision>
     <required>false</required>

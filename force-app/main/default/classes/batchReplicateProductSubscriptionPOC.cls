@@ -19,8 +19,7 @@ global class batchReplicateProductSubscriptionPOC implements Database.Batchable<
 
         for(ID subscrID :newPSPOCs)
             {
-            //ProductSubscriptionUtility.DeleteConsolidatedItems(subscrID,false);   
-            ProductSubscriptionUtility.ConsolidateItems4Subs(subscrID) ;
+            ProductSubscriptionUtility.DeleteConsolidatedItems(subscrID,false);    
             }
     }
  
@@ -52,7 +51,7 @@ global class batchReplicateProductSubscriptionPOC implements Database.Batchable<
             index = 0;
             String query = 'SELECT Related_Opportunity__c, count(ID)  FROM ProductSubscriptionOpportunity__c where Related_Opportunity__r.SBQQ__PrimaryQuote__c != NULL ';
             query = query + ' and Related_Opportunity__r.StageName in (\'Closed DeBook Non-Quota\',\'Closed DeBook Quota\',\'Closed Won\') ';
-            query = query + ' group by Related_Opportunity__c order by Related_Opportunity__c desc limit 5000';
+            query = query + ' group by Related_Opportunity__c order by count(ID) desc limit 5000';
             results = Database.query(query);            
         } 
  
