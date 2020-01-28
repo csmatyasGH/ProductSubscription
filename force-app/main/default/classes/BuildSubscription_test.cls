@@ -79,7 +79,7 @@ private static void testContingentSameValue()
 
     System.assertEquals(newpsi1.Start_Date__c,consItem.Start_Date__c);   
     System.assertEquals(newpsi2.End_Date__c,consItem.End_Date__c);       
-    System.assertEquals(newpsi1.QuoteItem_Value__c,consItem.Net_Value__c);    
+    System.assertEquals(newpsi1.QuoteItem_Value__c+newpsi1.QuoteItem_Value__c,consItem.Net_Value__c);    
     System.assertEquals(newpsi1.Quantity__c,consItem.Quantity__c);    
 
 }
@@ -156,7 +156,7 @@ private static void testContingentMixedValue()
     System.assertEquals(newpsi3.End_Date__c,consItems[1].End_Date__c);     
 
     System.assertEquals(newpsi1.QuoteItem_Value__c,consItems[0].Net_Value__c);    
-    System.assertEquals(newpsi2.QuoteItem_Value__c,consItems[1].Net_Value__c);      
+    System.assertEquals(newpsi2.QuoteItem_Value__c+newpsi3.QuoteItem_Value__c,consItems[1].Net_Value__c);      
    
 }
 
@@ -166,7 +166,7 @@ private static void testContingentMixedValue()
         |***** Y *****|
                 |**** Z *****|
 ========================================
-|XXXXXXX|YYYYYYY|ZZZZZZZZZZZZZZZZZZ|
+|XXXXXXX|YYYYYYY|ZZZZZZZZZZZZ|
 
 ********************************************/
 private static void testOverLappedMixedValues()
@@ -404,7 +404,7 @@ private static void testOverlapped()
 |XXXXXXXXXXXXXXXXXXXXXXXXX|
 
 ********************************************/
-private static void testContingentWithDeok()
+private static void testContingentWithDebook()
 {
     Id qliRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('QLI Based').getRecordTypeId(); 
     Id consRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('Consolidated').getRecordTypeId(); 
@@ -427,9 +427,7 @@ private static void testContingentWithDeok()
     System.assertEquals(newpsi1.Start_Date__c,consItems[0].Start_Date__c);   
     System.assertEquals(newpsi2.End_Date__c,consItems[0].End_Date__c); 
 
-    System.assertEquals(newpsi1.QuoteItem_Value__c,consItems[0].Net_Value__c);    
-    System.assertEquals(newpsi2.QuoteItem_Value__c,consItems[0].Net_Value__c);      
-   
+    System.assertEquals(newpsi1.QuoteItem_Value__c+newpsi2.QuoteItem_Value__c,consItems[0].Net_Value__c);       
   
 }
 

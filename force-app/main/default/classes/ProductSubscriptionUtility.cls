@@ -21,6 +21,7 @@ problems when embedding it into a Flow (Quick action on Opportunity)
 ********************************************************************************/
 public static void processSubscription(List<ProductSubscriptionBuilder> psbs)
 {
+System.Debug('CSABAX start processSubscription with pspb : ' +  psbs);   
 String operation;
 ID accId;
 Set<ID> prodIDs = new Set<ID>();
@@ -90,14 +91,277 @@ if(operation == 'BuildFromOpp')
    BuildSubscriptionPOC.buildSubscriptionFromAccount_Products(accId,prodIDs,NULL);
   } 
 
+
+ if(operation == 'MergeI2T') 
+  {
+   Set<ID> ps2Merge = new Set<ID>();
+   ps2Merge.add(psid);  
+   MergeItems2Terms(ps2Merge);
+  }   
+
+
+}
+
+/***********************************************************************************************************************
+there are cases when the Contingency is detectable only fter having the new Start-EndDate range consolidated and is not
+visible when current Item is the same as the previous item (best use case is the Upsell)
+***********************************************************************************************************************/
+private static void add2ConsolidatedList(List<Product_SubscriptionItem__c> consList,Product_SubscriptionItem__c newcons)
+{
+   System.Debug('CSABAX start add2ConsolidatedList');
+   if(consList.size() > 0)
+     {
+     //check if the last  consokidatd  has  the same value  aand is contingent
+     Product_SubscriptionItem__c lastcons = consList[consList.size()-1];
+     /*************************************************************************************************************
+     Net_Value__c is not sue the best.  Think deeper.  2 year X  vs. 1  Year X = 3 year 2X? not sure. Probably we
+     can do this if the 2 durations are the same otherwise keep the lastCon  and add a new one
+     *************************************************************************************************************/
+     if(lastcons.End_Date__c == newcons.Start_Date__c.addDays(-1) && lastcons.Net_Value__c == newcons.Net_Value__c)
+        {
+         lastcons.End_Date__c = newcons.End_Date__c;
+         lastcons.Net_Value__c = lastcons.Net_Value__c + newcons.Net_Value__c;  //????????????????
+         return;
+        }
+     }
+   
+   consList.add(newcons); 
 }
 
 
 /*****************************************************
 after introducing itemOrder no more need the Dynamic
-SOQL
+SOQL. Revorw  of the initial version.
+Do not try  t handle  Contingency at each step. Do it
+only when new cotingent StartDate occure. Within the
+same StartDate do only  the consolidation and try to
+merge only when addign item to consolidatedPSIs list
 *****************************************************/
 public static void ConsolidateItems4Subs(ID subscrID)
+{
+DeleteConsolidatedItems(subscrID,false);
+
+List<Product_SubscriptionItem__c> consolidatedPSIs = new List<Product_SubscriptionItem__c>();
+//Build Dynamic SOQL becase  during test I can not assure right order due to missing Opportunities
+String dynSQL = 'Select Id,Name,Parent_PS__c,Start_Date__c,End_Date__c,Net_Value__c,QuoteItem_NetTotal__c,QuoteItem_Value__c,Type__c,Opp_Type__c,Day_Duration__c  ';
+dynSQL = dynSQL + ',OriginQuote_Line__c, OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Name,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__c';
+dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate';
+dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__SegmentIndex__c,Duration__c';
+dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Number_of_ACV_Years__c';
+dynSQL = dynSQL + ' ,ParentSubscription__c,ParentSubscription__r.Product__c,Quantity__c,YearIndex__c,External_Id__c';
+dynSQL = dynSQL + ' from Product_SubscriptionItem__c where ParentSubscription__c = \'' + subscrID  + '\'';
+dynSQL = dynSQL + ' and RecordTypeID = \'' +  qliRTID + '\'';
+
+if(Test.isRunningTest())
+{
+dynSQL = dynSQL + ' order by Start_Date__c asc,Name'; 
+}
+else 
+{
+dynSQL = dynSQL + ' order by Start_Date__c asc,itemOrder__c,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate asc';
+}
+System.Debug('CSABAX dynSql = ' + dynSQL);
+List<Product_SubscriptionItem__c> psis = Database.query(dynSQL);
+
+Integer itemcount = psis.size();
+System.Debug('CSABAX itemcount = ' + itemcount);
+if(itemcount == 0) { return; }
+
+Product_SubscriptionItem__c currentconsolidated = new Product_SubscriptionItem__c();
+currentconsolidated = psis[0].clone();
+currentconsolidated.Net_Value__c = psis[0].QuoteItem_Value__c;
+currentconsolidated.RecordTypeID = consRTID;
+
+if(itemcount == 1)
+   {
+   //we have 1 single "Self-Consoldated" item.ApexPages.  
+   currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();   
+   consolidatedPSIs.add(currentconsolidated);
+   insert currentconsolidated;
+   return;
+   }
+
+
+for(integer i = 1; i<itemcount; i++)
+   {
+    Product_SubscriptionItem__c currentItem = psis[i];
+    Product_SubscriptionItem__c prevItem = psis[i-1];    
+    System.Debug('CSABAX currentconsolidated = ' + currentconsolidated);    
+    System.Debug('CSABAX currentItem = ' + currentItem); 
+    System.Debug('CSABAX prevItem = ' + prevItem);     
+
+    /************************ SAME START DATE START *****************/
+    if(currentItem.Start_Date__c == prevItem.Start_Date__c)
+    {
+    System.Debug('CSABAX either debook or a new logo same period');
+
+    /*********** if the currentconsolidated has TYPE = "CONTINGENT" we should roll back the contingency to the previous period
+    and save it as final consolidated. Theoretically this item might continue the Consolidation chain but unlikelly BUT HAPPEN
+    *************************************************************************************************************************/ 
+    if(currentconsolidated.Type__c == 'CONTINGENT')
+       {
+        if(currentconsolidated.Net_Value__c != currentItem.QuoteItem_Value__c)      //2020.01.27. Net_value is not good here because is cumulated!
+           {
+            //we roll back the contingency because unlikely we can keep it bot not excluded.   
+            currentconsolidated.End_Date__c = currentItem.Start_Date__c.addDays(-1);
+            currentconsolidated.Duration__c = currentconsolidated.Start_Date__c.monthsBetween(currentconsolidated.End_Date__c);   
+            currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  
+            //we wshould Adjust  Net_Value__c when debooking!!! 2020.01.27. CHECK HOW WE ARE HANDLING CONTINGENCE AT CREATION!!
+            currentconsolidated.Net_Value__c = currentconsolidated.Net_Value__c - currentconsolidated.QuoteItem_Value__c; //2020.01.28.            
+
+            add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
+            currentconsolidated = handleSameStart(prevItem,currentItem);  
+            continue;  //2020.01.27.             
+           }
+        else 
+           {
+           //iif the current item keep the continegcy ignore it because it  the same.
+           continue;
+           }
+       }
+
+    //we continue consolidation with Previos Item and Current Item,   
+    currentconsolidated = handleSameStart(prevItem,currentItem);   
+    continue;
+    }
+    /************************ SAME START DATE END *****************************************************************************/    
+    
+    /************************ CONTINGENT DATES START *************************/    
+    if(currentconsolidated.End_Date__c.addDays(1) == currentItem.Start_Date__c)
+    {
+    //start of a contingent new item   
+    System.Debug('CSABAX start of a contingent new item');    
+    Product_SubscriptionItem__c cc = handleContingent(currentconsolidated,currentItem);
+    if(cc == null)
+      {
+       //we keep the currentconsolidated having it's duration extended
+      } 
+    else 
+      {
+       //we can mark currentconsolidated as final and continue with the cc currentItem new Candidate
+       if(currentconsolidated.Net_Value__c > 0)
+          {
+           currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.       
+           if(currentconsolidated.Type__c == NULL)
+              {   
+              currentconsolidated.Type__c = 'SINGLE ITEM';  
+              }       
+           //2020.01.27.  consolidatedPSIs.add(currentconsolidated);
+           add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
+          }
+       else 
+         {
+         //WARNING. Here I assume that the Net_Value__c CAN NOT BE < 0.  BUT there are such a cases   
+         //https://instructure--staging.my.salesforce.com/aEP2g0000008ROf
+         }   
+
+
+       currentconsolidated = cc.clone();
+       currentconsolidated.RecordTypeID = consRTID;
+      }  
+
+    continue;
+    }
+    /************************ CONTINGENT DATES END ***************************/
+
+    /************************ FUTURE DATES START *****************/    
+    if(currentItem.Start_Date__c > prevItem.End_Date__c.addDays(1))
+    {
+    //unlinked new future period   
+    continue;
+    }
+    /************************ FUTURE DATES END ******************/    
+    
+
+    /************************ OVERLAPPED DATES START *********************************************************/    
+    if(currentItem.Start_Date__c > prevItem.Start_Date__c && currentItem.Start_Date__c < prevItem.End_Date__c )
+    {
+    //overlapped item  
+    System.Debug('CSABAX overlapped item ');  
+    //if the new Item is overlapping with a CONTINGENT currentconsolidated we undo the contingency   
+    if(currentconsolidated.Type__c == 'CONTINGENT')
+       {
+        currentconsolidated.End_Date__c = currentItem.Start_Date__c.addDays(-1);
+        currentconsolidated.Duration__c = currentconsolidated.Start_Date__c.monthsBetween(currentconsolidated.End_Date__c);  
+        currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07. 
+        //we have to roll back the contingency beause we start an overlap wicc will unlikely keep the revenue  
+        currentconsolidated.Net_Value__c = currentconsolidated.Net_Value__c - currentconsolidated.QuoteItem_Value__c; //2020.01.28.     
+
+        add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
+       }
+
+    //continue consolidation having the previous as cc
+    Product_SubscriptionItem__c cc = handleOverlap(prevItem,currentItem);   
+    if(cc != NULL)  
+      {
+      if(cc.Net_Value__c > 0)
+         {
+         cc.External_Id__c = cc.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.   
+         //2020.01.27. consolidatedPSIs.add(cc); 
+         add2ConsolidatedList(consolidatedPSIs,cc);  
+         }
+
+      //if the current item is an upsell we have to handle it  2020.01.21.
+      if(currentItem.Opp_Type__c == 'upsell')
+         {
+         currentconsolidated = upsell(prevItem,currentItem); 
+         currentconsolidated.RecordTypeID = consRTID; 
+         }
+      else 
+         {//this was before 2020.01.21.
+         currentconsolidated = currentItem.clone(); 
+         currentconsolidated.Net_Value__c = currentItem.QuoteItem_Value__c;
+         currentconsolidated.RecordTypeID = consRTID;  
+         currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();       
+         }
+ 
+      }  
+    else 
+      {
+      //we might have a multiyear deal overruled. sart a new process
+      currentconsolidated = currentItem.clone(); 
+      currentconsolidated.Net_Value__c = currentItem.QuoteItem_Value__c;   
+      currentconsolidated.RecordTypeID = consRTID;            
+      }  
+
+    continue; 
+    }
+    /************************ OVERLAPPED DATES END ***********************************************************/
+
+   }//end of for
+
+   if(currentconsolidated.Net_Value__c != 0)
+     {
+      currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();         
+      //2020.01.27. consolidatedPSIs.add(currentconsolidated);
+      add2ConsolidatedList(consolidatedPSIs,currentconsolidated);  
+     }
+
+   System.Debug('CSABAX we have ' + consolidatedPSIs.size() + ' consolidated Subscription terms');
+
+   /*********************************************************************************************************
+   Once consolidation is succesfull remove the Lookup to OOTB ProductSubs from the non-consolidated QLI items 
+   ******************************************** START ******************************************************/
+   List<Product_SubscriptionItem__c> thePSI2Upsert = new List<Product_SubscriptionItem__c>(); 
+   for(Product_SubscriptionItem__c qli_item :psis)
+       {
+       qli_item.Parent_PS__c = NULL;   
+       thePSI2Upsert.add(qli_item);
+       }   
+
+   thePSI2Upsert.addAll(consolidatedPSIs); 
+   System.Debug('CSABAX start upserting thePSI2Upsert count = ' +thePSI2Upsert.size());  
+   List<Database.UpsertResult> durs = Database.upsert(thePSI2Upsert,Product_SubscriptionItem__c.External_Id__c,false); 
+   ProcessUpsertResult(durs);
+   /*********************************************** END *************************************************************/
+
+}
+
+/*****************************************************
+after introducing itemOrder no more need the Dynamic
+SOQL
+*****************************************************/
+public static void ConsolidateItems4Subs_OLD(ID subscrID)
 {
 DeleteConsolidatedItems(subscrID,false);
 
@@ -173,14 +437,18 @@ for(integer i = 1; i<itemcount; i++)
     *************************************************************************************************************************/ 
     if(currentconsolidated.Type__c == 'CONTINGENT')
        {
-        if(currentconsolidated.Net_Value__c != currentItem.QuoteItem_Value__c)
+        if(currentconsolidated.Net_Value__c != currentItem.QuoteItem_Value__c)      //2020.01.27. Net_value is not good here because is cumulated!
            {
+            //we roll back the contingency because unlikely we can keep it bot not excluded.   
             currentconsolidated.End_Date__c = currentItem.Start_Date__c.addDays(-1);
             currentconsolidated.Duration__c = currentconsolidated.Start_Date__c.monthsBetween(currentconsolidated.End_Date__c);   
             currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  
-            //Reevaluate AAR and TSV                  
-            consolidatedPSIs.add(currentconsolidated); 
-            currentconsolidated = handleSameStart(prevItem,currentItem);               
+            //we should Adjust  Net_Value__c when debooking!!! 2020.01.27. CHECK HOW WE ARE HANDLING CONTINGENCE AT CREATION!!
+            currentconsolidated.Net_Value__c = currentconsolidated.Net_Value__c - currentItem.QuoteItem_Value__c;       //2020.01.28.
+
+            add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
+            currentconsolidated = handleSameStart(prevItem,currentItem);  
+            continue;  //2020.01.27.             
            }
         else 
            {
@@ -193,7 +461,7 @@ for(integer i = 1; i<itemcount; i++)
     currentconsolidated = handleSameStart(prevItem,currentItem);   
     continue;
     }
-    /************************ SAME START DATE END *******************/    
+    /************************ SAME START DATE END *****************************************************************************/    
     
     /************************ CONTINGENT DATES START *************************/    
     if(currentconsolidated.End_Date__c.addDays(1) == currentItem.Start_Date__c)
@@ -215,7 +483,8 @@ for(integer i = 1; i<itemcount; i++)
               {   
               currentconsolidated.Type__c = 'SINGLE ITEM';  
               }       
-           consolidatedPSIs.add(currentconsolidated);
+           //2020.01.27.  consolidatedPSIs.add(currentconsolidated);
+           add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
           }
        else 
          {
@@ -253,7 +522,8 @@ for(integer i = 1; i<itemcount; i++)
         currentconsolidated.Duration__c = currentconsolidated.Start_Date__c.monthsBetween(currentconsolidated.End_Date__c);  
         currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.  
         //Reevaluate AAR and TSV                  
-        consolidatedPSIs.add(currentconsolidated);     
+        //2020.01.27. consolidatedPSIs.add(currentconsolidated);     
+        add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
        }
 
     //continue consolidation having the previous as cc
@@ -262,8 +532,9 @@ for(integer i = 1; i<itemcount; i++)
       {
       if(cc.Net_Value__c > 0)
          {
-         cc.External_Id__c = cc.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.     
-         consolidatedPSIs.add(cc); 
+         cc.External_Id__c = cc.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.   
+         //2020.01.27. consolidatedPSIs.add(cc); 
+         add2ConsolidatedList(consolidatedPSIs,cc);  
          }
 
       //if the current item is an upsell we have to handle it  2020.01.21.
@@ -298,10 +569,10 @@ for(integer i = 1; i<itemcount; i++)
    if(currentconsolidated.Net_Value__c != 0)
      {
       currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();         
-      consolidatedPSIs.add(currentconsolidated);
+      //2020.01.27. consolidatedPSIs.add(currentconsolidated);
+      add2ConsolidatedList(consolidatedPSIs,currentconsolidated);  
      }
 
-   System.Debug('CSABAX we have ' + consolidatedPSIs.size() + ' consolidated Subscription terms');
 
    /*********************************************************************************************************
    Once consolidation is succesfull remove the Lookup to OOTB ProductSubs from the non-consolidated QLI items 
@@ -311,13 +582,12 @@ for(integer i = 1; i<itemcount; i++)
        {
        qli_item.Parent_PS__c = NULL;   
        thePSI2Upsert.add(qli_item);
-       }   
+       } 
+
+   System.Debug('CSABAX we have ' + consolidatedPSIs.size() + ' consolidated Subscription terms to insert and ' + thePSI2Upsert.size() + ' existing to update.');         
 
    thePSI2Upsert.addAll(consolidatedPSIs); 
-   for(Product_SubscriptionItem__c i2u :thePSI2Upsert)
-   {
-   System.Debug('CSABAX Id = ' + i2u.id + ' ExtID = ' +  i2u.External_Id__c);   
-   }
+
    List<Database.UpsertResult> durs = Database.upsert(thePSI2Upsert,Product_SubscriptionItem__c.External_Id__c,false); 
    ProcessUpsertResult(durs);
    /*********************************************** END *************************************************************/
@@ -355,7 +625,7 @@ else
   {
   //this is an ammendment or a new logo for the same period. the new one should take over  
   retval = item.clone();
-  retval.Net_Value__c = item.QuoteItem_Value__c;
+  retval.Net_Value__c = item.QuoteItem_Value__c;   //2020.01.27. RETHINK A BIT!!!!!!!!!!!
   }
 retval.RecordTypeID = consRTID;
 
@@ -538,13 +808,14 @@ and continue form there
 **********************************************/
 public static void MergeItems2Terms(Set<Id> thePSIDs)
 {
+System.Debug('CSABAX start MergeItems2Terms for ' + thePSIDs);   
 List<ProductSubscriptionTerm__c> mergedPSTerms = new List<ProductSubscriptionTerm__c>();
 
 List<ProductSubscription__c> thePSs = [Select Id
                                         ,(Select Id,Name, StartDate__c,EndDate__c,SubscriptionKeyWithTerm__c,Account__c,Product__c,ProductID__c,ProductSubscription__c,
                                           Quantity__c,RevisedUltimateFamily__c,RevisedUltimateSubFamily__c,SubscriptionTermStatus__c  
                                           from Subscription_Terms__r where  SubscriptionTermStatus__c in ('Current','Future') order by StartDate__c asc)
-                                        ,(Select Id,Name,Start_Date__c,End_Date__c,ARR__c,MRR__c,Net_Value__c  
+                                        ,(Select Id,Name,Start_Date__c,End_Date__c,ARR__c,MRR__c,Net_Value__c,Parent_PS__c   
                                           from Product_SubscriptionItems__r 
                                           where RecordType.DeveloperName = 'Consolidated' and SubscriptionTermStatus__c in ('Current','Future') order by Start_Date__c asc
                                          )   
@@ -594,6 +865,9 @@ for(ProductSubscription__c thePS : thePSS)
          else 
             {
             //brand new.
+            nextTerm = convertItem2term(psi,NULL,'brand new');
+            System.Debug('CSABAX created term: ' + nextTerm);
+            mergedPSTerms.add(nextTerm);            
             }   
          }
       }
@@ -611,8 +885,7 @@ return either a new Term or the passed term updated with fields from Source Item
 Keep al fields excepting: ARR/MRR/TSV/Quantity/Start-End Dates
 **************************************************************************************************************************************/
 private static ProductSubscriptionTerm__c convertItem2term(Product_SubscriptionItem__c item,ProductSubscriptionTerm__c term, String merge_new)
-{
-System.Debug('CSABAX call convertItem2term with term: ' + term.Name + ' for ' + merge_new);   
+{   
 ProductSubscriptionTerm__c retval;
 
 if(merge_new == 'merge')
@@ -656,10 +929,25 @@ else if(merge_new == 'new')
   }   
 else if(merge_new == 'brand new')
   {
-   //term is NULL here. We need to create brand new Term
+   System.Debug('CSABAX term is NULL here. We need to create brand new Term');
+   retval = new ProductSubscriptionTerm__c();
+
+   retval.StartDate__c = item.Start_Date__c;
+   retval.EndDate__c = item.End_Date__c;
+
+   retval.ARR__c = item.ARR__c;
+   retval.MRR__c = item.MRR__c;
+   retval.TSV__c = item.Net_Value__c;   
+
+   //find namign convention
+   retval.Name = 'HOMEMADE_TERM-1';  
+   //find external Id  pattern
+   retval.SubscriptionKeyWithTerm__c = 'TEMPRORARY0000000000000000000000000-1';
+
+   //set the parent too
+   retval.ProductSubscription__c = item.Parent_PS__c;
+   return retval;
   }  
-
-
 
 //2020.01.23. Item does not have quantity!
 

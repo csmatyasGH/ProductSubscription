@@ -17,6 +17,7 @@ If param3 is not null this mean is invoked from PB and we should skip header cre
 ***********************************************************************************************/
 public static Set<ID> buildSubscriptionFromAccount_Products(ID accId,Set<ID> prodIds,String source)
 {
+System.Debug('CSABAX  start buildSubscriptionFromAccount_Products for Acc: ' + accId + ' ProdCount = ' + prodIds.size());  
 Set<ID> retval =  new Set<ID>();  
 List<ProductSubscription_POC__c> PS_POC2Upsert = new List<ProductSubscription_POC__c>();
 List<Product_SubscriptionItem__c> PSIs2Upsert = new List<Product_SubscriptionItem__c>();
@@ -147,9 +148,11 @@ return retval;
 /*******************************************************************************************************************************
 Same as the above with the exception that it will return a list  of not-created yet Product_SubscriptionItem__c.  Will be called
 from within the buildSubscriptionFromOpportunityAccountLink to give the chance to include the on-behalf items too and Order them
+Add control to code from the caller. We might not need to create PS header and POC header because it was created by caller.
 *******************************************************************************************************************************/
 public static List<Product_SubscriptionItem__c> buildSubscriptionFromAccount_ProductsOAL(ID accId,Set<ID> prodIds,String source)
 {
+System.Debug('CSABAX start buildSubscriptionFromAccount_ProductsOAL for Acc: ' + accId + ' and prodIDs: ' + prodIds);  
 List<ProductSubscription_POC__c> PS_POC2Upsert = new List<ProductSubscription_POC__c>();
 List<Product_SubscriptionItem__c> PSIs2Upsert = new List<Product_SubscriptionItem__c>();
 List<ProductSubscription__c> lst_PS2Create = new List<ProductSubscription__c> ();
@@ -173,33 +176,31 @@ List<Product2> ProdswithQLI = [SELECT Id, Name,
                                                 and SBQQ__StartDate__c != NULL
                                                 and SBQQ__Quote__r.SBQQ__Opportunity2__r.StageName in ('Closed DeBook Non-Quota','Closed DeBook Quota','Closed Won')
                                                ) 
-                                               ,(Select id  from Product_Subscriptions__r where Account__c = :accId order by Createddate desc limit 1) //normally should be only 1
+                                               ,(Select id  from Product_Subscriptions__r where Account__c = :accId order by Createddate desc limit 1)     //in order to match existing
+                                               ,(Select id  from ProductSubscriptions_POC__r where Account__c = :accId order by Createddate desc limit 1)  //in order to match existing
                               FROM Product2 where id in :prodIds];                                                       
 
 for(Product2 prod :ProdswithQLI)
     {
 Map<Date,List<Product_SubscriptionItem__c>> mapDate2Items = new Map<Date,List<Product_SubscriptionItem__c>>();  //2019.01.08.        
     if(source == NULL)
-      {//we can build the header based on prod and accId 
+      {/********************** Build the Header PS POC **************************
+      We can also match the existing originals based ProductSubscriptions_POC__r
+      but in this case we can not set  the expected Item count ****************/
       ProductSubscription_POC__c newPOC = new ProductSubscription_POC__c();
       newPOC.Account__c = accId;
       newPOC.Product__c = prod.id;
       newPOC.ExternalID__c = accId + '_' + prod.id;
 
-      if(prod.R00N70000001lXB6EAM__r == NULL)
-         {
-         newPOC.Number_of_Expected_Items__c = 0;
-         }
-      else 
-         {
-        newPOC.Number_of_Expected_Items__c = prod.R00N70000001lXB6EAM__r.size();
-         }   
+      if(prod.R00N70000001lXB6EAM__r == NULL) { newPOC.Number_of_Expected_Items__c = 0; }
+      else { newPOC.Number_of_Expected_Items__c = prod.R00N70000001lXB6EAM__r.size(); }   
 
       PS_POC2Upsert.add(newPOC);  
       }
-  
+      /********************** Build the PS POC Header *************************/
 
     ID ppsID = NULL;
+    /******************** Build OOTB PS Header *********************/
     List<ProductSubscription__c> pps = prod.Product_Subscriptions__r;
     if(pps.size() == 1)  
       {
@@ -214,7 +215,8 @@ Map<Date,List<Product_SubscriptionItem__c>> mapDate2Items = new Map<Date,List<Pr
       newPS.Product__c = prod.id;
       newPS.External_Id__c = accId + '_' + prod.id;
       lst_PS2Create.add(newPS);
-      }   
+      } 
+    /******************** Build OOTB PS Header *********************/        
 
     List<SBQQ__QuoteLine__c> qlis = prod.R00N70000001lXB6EAM__r;
     String extID4PS = accId + '_' + prod.id;
@@ -251,6 +253,8 @@ Map<Date,List<Product_SubscriptionItem__c>> mapDate2Items = new Map<Date,List<Pr
     }
 
 List<Database.UpsertResult> durps;
+
+/****************** PROBABLY NO NEED BECAUSE THE CALLER CREATED THEM. ONLY IN CASE WE HAD AOL!  **************/
 System.Debug('CSABAX upsert PS_POC ' + PS_POC2Upsert.size()); 
 if(PS_POC2Upsert.size() > 0)
    {
@@ -262,11 +266,9 @@ if(lst_PS2Create.size() > 0)
    {
    durps = Database.upsert(lst_PS2Create,ProductSubscription__c.External_Id__c,false);  
    }   
+/****************** PROBABLY NO NEED BECAUSE THE CALLER CREATED THEM. ONLY IN CASE WE HAD AOL!  **************/
 
 //we need to handle situation when a previous  upsert  failed. !!!!!!!!!!!!!!!!!!!!!!!
-
-//TRY TO BUILD HTHE RIGT ORDER OF THE Items. special Care for items with Same StatDate
-//setItemOrder(mapDate2Items);
 
 return PSIs2Upsert;
 }  
@@ -283,7 +285,6 @@ private static void setItemOrder(Map<Date,List<Product_SubscriptionItem__c>> map
 
 for(Date sd :mapDate2Items.keyset())
    {
-   System.Debug('CSABAX sd = ' +  sd);  
    //1 order the items based on Opp Created Date asc  
    //2 iterate again starting from 2 and look for Debook
    //3 iterate again starting from 3 and look for Same Name Start
@@ -431,10 +432,17 @@ List<Opportunity> opps = [Select Id, Name,Source_Opportunity__c,Type,SBQQ__Prima
                          ,(Select ID,Product2ID,Product2.Name, SBQQ__QuoteLine__c
                            ,SBQQ__QuoteLine__r.SBQQ__StartDate__c,SBQQ__QuoteLine__r.SBQQ__EndDate__c  
                            ,SBQQ__QuoteLine__r.SBQQ__NetPrice__c  ,SBQQ__QuoteLine__r.Net_Total_Rounded__c, SBQQ__QuoteLine__r.SBQQ__ListPrice__c  
-                           ,SBQQ__QuoteLine__r.SBQQ__Quantity__c,SBQQ__QuoteLine__r.SBQQ__SegmentIndex__c                       
-                          from OpportunityLineItems)
+                           ,SBQQ__QuoteLine__r.SBQQ__Quantity__c,SBQQ__QuoteLine__r.SBQQ__SegmentIndex__c  
+                           ,SBQQ__QuoteLine__r.SBQQ__Quote__r.SBQQ__Opportunity2__c,SBQQ__QuoteLine__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Type   //WE SHOULD USE THEOPP from the outer query!!!!      
+                           ,SBQQ__QuoteLine__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CreatedDate              
+                          from OpportunityLineItems 
+                          where SBQQ__QuoteLine__r.SBQQ__StartDate__c != NULL
+                          and SBQQ__QuoteLine__r.SBQQ__Quote__r.SBQQ__Primary__c = true //TO BE CHECKED
+                          )
                           ,(Select id,Primary_Product_Subscription__c,Primary_Product_Subscription__r.Product__c  from Product_Subscription_Opportunities__r)
-                          from Opportunity where id = :oppID];
+                          from Opportunity where id = :oppID 
+                          and SBQQ__PrimaryQuote__c != NULL                             //TO BE CHECKED
+                         ];
 
 Set<ID> prodId = new Set<Id>(); 
 map<Id,Set<ID>> mapAcc2Prod = new map<Id,Set<ID>>();
@@ -449,6 +457,10 @@ for(Opportunity opp :opps)
       {
       prodId.add(oli.Product2ID); //this Set is used when no AOL and for child Accounts independent deal
       System.Debug('CSABAX build POC for Prod: ' + oli.Product2.Name);
+      /*******************************************************************
+      If the Opp has OALs  we create POC/Items for each Account where the
+      Percentage__c is not NULL or 0 EVEN for the Parent Account 
+      *******************************************************************/
       for(OpportunityAccountLink__c oal :opp.Opportunity_Account_Links__r)
           {
           System.Debug('CSABAX build POC  for Account: ' + oal.Account__r.Name + ' with Percentage:  ' + oal.Percentage__c);
@@ -465,6 +477,7 @@ for(Opportunity opp :opps)
           lst_PS2Create.add(refPS);          
 
           //create the PSItem
+          System.Debug('CSABAX oli.SBQQ__QuoteLine__r = ' + oli.SBQQ__QuoteLine__r);
           SBQQ__QuoteLine__c qli = oli.SBQQ__QuoteLine__r;
           Product_SubscriptionItem__c newpsi = buildCPQ_PSI(qli,refPOC);
           newpsi.OriginOpportunity__c = opp.id;
@@ -473,39 +486,48 @@ for(Opportunity opp :opps)
           newpsi.Parent_PS__r = refPS;
           PSIs2Upsert.add(newpsi);
 
-          mapAcc2Prod.put(oal.Account__c,prodId); //the prodID set  in incremented outside this for loop          
+          mapAcc2Prod.put(oal.Account__c,prodId); //the prodID set in incremented outside this for loop          
           }
+      /****************  EN OAL handling **************/
+      //if there were no OALs in this for loop  we collect only the ProdIDs for the Parent account.
       }
+
    }  
-
 /******************************************************/
-
-
+    
 List<Database.UpsertResult> durps;
-System.Debug('CSABAX upsert PS_POC ' + PS_POC2Upsert.size()); 
-if(PS_POC2Upsert.size() > 0)
-   {
-   durps = Database.upsert(PS_POC2Upsert,ProductSubscription_POC__c.ExternalID__c,false);  
-   ProductSubscriptionUtility.ProcessUpsertResult(durps);
-   }
-
-if(lst_PS2Create.size() > 0)
-   {
-   durps = Database.upsert(lst_PS2Create,ProductSubscription__c.External_Id__c,false);  
-   }   
 
 if(mapAcc2Prod.size() == 0)
    {
-   System.Debug('CSABAX we do not have AOLs create POC/Itesm for the main Account');
+   System.Debug('CSABAX we do not have AOLs create POC/Itesm for the main Account. ProCount = ' + prodId.size());
     buildSubscriptionFromAccount_Products(accId,prodId,NULL);  
     return;  
    }
 else 
    {
+
+    /************** the below happen only if we HAD OppAccLink records *********************/
+    System.Debug('CSABAX upsert PS_POC for the on-behalf  Accounts' + PS_POC2Upsert.size()); 
+    if(PS_POC2Upsert.size() > 0)
+      {
+      durps = Database.upsert(PS_POC2Upsert,ProductSubscription_POC__c.ExternalID__c,false);  
+      ProductSubscriptionUtility.ProcessUpsertResult(durps);
+      }
+    System.Debug('CSABAX upsert OOTB PS for the on-behalf Accounts' + PS_POC2Upsert.size());
+    if(lst_PS2Create.size() > 0)
+      {
+      durps = Database.upsert(lst_PS2Create,ProductSubscription__c.External_Id__c,false);  
+      } 
+    /************** the above happen only if we HAD OppAccLink records *********************/
+    /***** Above we create the OOTB PS and the POC PS header for the on-behalf Accunts *****/ 
+
   System.Debug('CSABAX for each on-behalf Account create the own POC/Items');
   for(ID acc_Id :mapAcc2Prod.keySet())
      {
-     PSIs2Upsert.addAll(buildSubscriptionFromAccount_ProductsOAL(acc_Id,mapAcc2Prod.get(accId),NULL));  
+     //in the below call the PS HEADERs (both OOTB and POC) will be  found in the initial query  because we just created them above 
+     List<Product_SubscriptionItem__c>  ownPSItems = buildSubscriptionFromAccount_ProductsOAL(acc_Id,mapAcc2Prod.get(acc_Id),NULL);
+     System.Debug('CSABAX there were ' + ownPSItems.size() + ' own items for Account: ' + acc_Id );
+     PSIs2Upsert.addAll(ownPSItems);  
      }   
    }
   
@@ -589,7 +611,7 @@ private static Product_SubscriptionItem__c buildCPQ_PSI(SBQQ__QuoteLine__c qli,P
     newpsi.External_Id__c = qli.id;
     
     newpsi.Quantity__c = qli.SBQQ__Quantity__c;
-    newpsi.QuoteItem_Value__c = qli.Net_Total_Rounded__c;
+    newpsi.QuoteItem_Value__c = qli.Net_Total_Rounded__c; 
     newpsi.YearIndex__c = qli.SBQQ__SegmentIndex__c;
     //calculate MRR and TSV (and if possible take care of the Conversion too)
     
@@ -614,11 +636,11 @@ private static Product_SubscriptionItem__c buildQLI_PSI(OpportunityLineItem qli,
     newpsi.External_Id__c = qli.id;
     
     newpsi.Quantity__c = qli.Quantity;
-    newpsi.QuoteItem_Value__c = qli.TotalPrice;
     newpsi.YearIndex__c = qli.SBQQ__QuoteLine__r.SBQQ__SegmentIndex__c;
-    //calculate MRR and TSV (and if possible take care of the Conversion too)
+
+    newpsi.QuoteItem_Value__c = qli.TotalPrice;
     
-    newpsi.Duration__c = qli.Start_Date__c.monthsBetween(qli.End_Date__c) + 1; 
+    newpsi.Duration__c = qli.Start_Date__c.monthsBetween(qli.End_Date__c) + 1; //this is not accurate because truncate 
     
     return newpsi;
 }
