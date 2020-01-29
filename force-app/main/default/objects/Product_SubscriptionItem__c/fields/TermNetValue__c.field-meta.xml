@@ -5,6 +5,7 @@
     <externalId>false</externalId>
     <formula>QuoteItem_NetTotal__c * ( Day_Duration__c /  InitialTermDuration__c )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Calculated field based on Qoutel LineItem&#39;s value</inlineHelpText>
     <label>TermNetValue(TSV)</label>
     <precision>18</precision>
     <required>false</required>

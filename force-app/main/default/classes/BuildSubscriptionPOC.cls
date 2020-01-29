@@ -618,6 +618,7 @@ private static Product_SubscriptionItem__c buildCPQ_PSI(SBQQ__QuoteLine__c qli,P
     newpsi.Duration__c = qli.SBQQ__StartDate__c.monthsBetween(qli.SBQQ__EndDate__c) + 1;  //NOT GOOD review and calculate based on days/30.5 and round
 
     newpsi.OppCreatedDate__c = qli.SBQQ__Quote__r.SBQQ__Opportunity2__r.Createddate;
+    newpsi.OppType__c = qli.SBQQ__Quote__r.SBQQ__Opportunity2__r.Type;
     
     return newpsi;
 }

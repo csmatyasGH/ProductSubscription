@@ -3,6 +3,7 @@
     <fullName>Net_Value__c</fullName>
     <description>filed populated only for Consolidated items</description>
     <externalId>false</externalId>
+    <inlineHelpText>Calculated field during Consolidation</inlineHelpText>
     <label>Net Value</label>
     <precision>12</precision>
     <required>false</required>

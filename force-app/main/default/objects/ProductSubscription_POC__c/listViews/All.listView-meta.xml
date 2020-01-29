@@ -4,7 +4,6 @@
     <columns>NAME</columns>
     <columns>Account__c</columns>
     <columns>Product__c</columns>
-    <columns>NrOfItems__c</columns>
     <columns>ExternalID__c</columns>
     <columns>CREATED_DATE</columns>
     <columns>LAST_UPDATE</columns>

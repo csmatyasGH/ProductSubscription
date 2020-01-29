@@ -35,7 +35,7 @@ private static void testSingleItem()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 5000,'ExtID');
+    Product_SubscriptionItem__c newpsi = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 5000,'ExtID',NULL);
  
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -66,8 +66,8 @@ private static void testContingentSameValue()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 5000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, 5000,'ExtID_2');
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 5000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, 5000,'ExtID_2',NULL);
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -100,9 +100,9 @@ private static void testContingentDiffValue()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 200,1, 4000,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 300,1, 6000,'ExtID_3');    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 200,1, 4000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 300,1, 6000,'ExtID_3',NULL);    
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -138,9 +138,9 @@ private static void testContingentMixedValue()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 200,1, 4000,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 200,1, 4000,'ExtID_3');    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 200,1, 4000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 200,1, 4000,'ExtID_3',NULL);    
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -176,9 +176,9 @@ private static void testOverLappedMixedValues()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(2), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.Start_Date__c.AddDays(31),newpsi1.End_Date__c.addMonths(2), 200,1, 3000,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.Start_Date__c.AddDays(31),newpsi2.End_Date__c.addMonths(2), 200,1, 4000,'ExtID_3');    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(2), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.Start_Date__c.AddDays(31),newpsi1.End_Date__c.addMonths(2), 200,1, 3000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.Start_Date__c.AddDays(31),newpsi2.End_Date__c.addMonths(2), 200,1, 4000,'ExtID_3',NULL);    
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -215,9 +215,9 @@ private static void testContingentOverruled()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi1.End_Date__c.addMonths(1).addDays(1), 100,1, 2000,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi2.End_Date__c.addMonths(1), 150,1,3000,'ExtID_3');    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi1.End_Date__c.addMonths(1).addDays(1), 100,1, 2000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi2.End_Date__c.addMonths(1), 150,1,3000,'ExtID_3',NULL);    
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -249,9 +249,9 @@ private static void testOverruled()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi1.End_Date__c.addMonths(1).addDays(1), 120,1, 2500,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi2.End_Date__c.addMonths(1), 150,1,3000,'ExtID_3');    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi1.End_Date__c.addMonths(1).addDays(1), 120,1, 2500,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.addDays(1),newpsi2.End_Date__c.addMonths(1), 150,1,3000,'ExtID_3',NULL);    
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -283,9 +283,9 @@ private static void testOverruled1()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addyears(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.Start_Date__c.addMonths(1),System.Date.today().addyears(1), 120,1, 2500,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.Start_Date__c.addMonths(2),System.Date.today().addyears(1), 150,1,3000,'ExtID_3');    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addyears(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.Start_Date__c.addMonths(1),System.Date.today().addyears(1), 120,1, 2500,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.Start_Date__c.addMonths(2),System.Date.today().addyears(1), 150,1,3000,'ExtID_3',NULL);    
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -317,8 +317,8 @@ private static void testfullDebok()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 5000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, -5000,'ExtID_2');
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 5000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, -5000,'ExtID_2',NULL);
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -343,8 +343,8 @@ private static void testfPartialDebok()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1),100,1, 5000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1),90,1, -4000,'ExtID_2');
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1),100,1, 5000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1),90,1, -4000,'ExtID_2',NULL);
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -371,8 +371,8 @@ private static void testOverlapped()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(2),100,1, 5000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,System.Date.today().addMonths(1),System.Date.today().addMonths(3),90,1, 4000,'ExtID_2');
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(2),100,1, 5000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,System.Date.today().addMonths(1),System.Date.today().addMonths(3),90,1, 4000,'ExtID_2',NULL);
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -411,10 +411,10 @@ private static void testContingentWithDebook()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, 2000,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 100,1, 2000,'ExtID_3');   
-    Product_SubscriptionItem__c newpsi4 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 100,1, -2000,'ExtID_4');      
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, 2000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 100,1, 2000,'ExtID_3',NULL);   
+    Product_SubscriptionItem__c newpsi4 = createPSItem(refPOC.id,newpsi2.End_Date__c.AddDays(1),newpsi2.End_Date__c.addMonths(1), 100,1, -2000,'ExtID_4',NULL);      
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -449,10 +449,10 @@ private static void testContingentWithDeokAndNewLogo()
 
     ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
     
-    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1');
-    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, 2000,'ExtID_2');
-    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, -2000,'ExtID_3');   
-    Product_SubscriptionItem__c newpsi4 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(10),newpsi2.End_Date__c.addMonths(2), 110,1,  2500,'ExtID_4');      
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, 2000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(1), 100,1, -2000,'ExtID_3',NULL);   
+    Product_SubscriptionItem__c newpsi4 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(10),newpsi2.End_Date__c.addMonths(2), 110,1,  2500,'ExtID_4',NULL);      
 
     test.startTest();
     ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
@@ -472,12 +472,71 @@ private static void testContingentWithDeokAndNewLogo()
 }
 
 
+/****************************************
+
+|**** X ****|
+            |***** x *****|
+            |**** uZ  ****|
+===========================
+|XXXXXXXXXXX|**** X+Z ****|
+
+****************************************/
+@istest
+private static void testFullRangeUpsell()
+{
+    Id qliRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('QLI Based').getRecordTypeId(); 
+    Id consRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('Consolidated').getRecordTypeId(); 
+
+    ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
+    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(2), 200,1, 4000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(2), 100,1, 6000,'ExtID_3','Upsell');    
+
+    test.startTest();
+    ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
+    test.stopTest();
+}
+
+/*******************************************
+
+|**** Y ****|
+            |************ x ***************|
+                          |******* uZ *****|
+============================================
+|XXXXXXXXXXX|*** -tlX *** |**** -trX+Z ****|
+
+*******************************************/
+@istest
+private static void testRightSideUpsell()
+{
+    Id qliRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('QLI Based').getRecordTypeId(); 
+    Id consRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('Consolidated').getRecordTypeId(); 
+
+    ProductSubscription_POC__c refPOC =  [Select id from ProductSubscription_POC__c limit 1];
+    
+    Product_SubscriptionItem__c newpsi1 = createPSItem(refPOC.id,System.Date.today(),System.Date.today().addMonths(1), 100,1, 2000,'ExtID_1',NULL);
+    Product_SubscriptionItem__c newpsi2 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(1),newpsi1.End_Date__c.addMonths(2), 200,1, 4000,'ExtID_2',NULL);
+    Product_SubscriptionItem__c newpsi3 = createPSItem(refPOC.id,newpsi1.End_Date__c.AddDays(30),newpsi1.End_Date__c.addMonths(2), 100,1, 6000,'ExtID_3','Upsell');    
+
+    test.startTest();
+    ProductSubscriptionUtility.ConsolidateItems4Subs(refPOC.id);
+    test.stopTest();    
+}
 
 
-/*************************************************************************************************************************************************
-not a test method used to create data fr the test m,ethods
-*************************************************************************************************************************************************/
-private static Product_SubscriptionItem__c createPSItem(ID headerID,Date sD,Date eD, Integer quantity,Integer yearI, Decimal qliVal,String extID)
+
+/***************************************************************************************************************************************************************
+not a test method used to create data fr the test methods
+param1: POC id
+param2,3: StartDate,EndDate
+param4:   Quantity
+param5:    
+param6:   Inherited QuoteLineItem Value
+param7:   ExternalID
+param8:   Opportunity Type (used to handle Upsell)  Options: "New Logo", "Renewal","Upsell" 
+****************************************************************************************************************************************************************/
+private static Product_SubscriptionItem__c createPSItem(ID headerID,Date sD,Date eD, Integer quantity,Integer yearI, Decimal qliVal,String extID, String oppType)
 {
     Id qliRTID = Schema.SObjectType.Product_SubscriptionItem__c.getRecordTypeInfosByName().get('QLI Based').getRecordTypeId(); 
 
@@ -492,6 +551,7 @@ private static Product_SubscriptionItem__c createPSItem(ID headerID,Date sD,Date
     newpsi.YearIndex__c = yearI;
 
     newpsi.External_Id__c = extID;   
+    newpsi.OppType__c = oppType;
 
     insert newpsi; //use factory
 

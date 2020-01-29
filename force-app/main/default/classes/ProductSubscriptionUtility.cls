@@ -108,7 +108,7 @@ visible when current Item is the same as the previous item (best use case is the
 ***********************************************************************************************************************/
 private static void add2ConsolidatedList(List<Product_SubscriptionItem__c> consList,Product_SubscriptionItem__c newcons)
 {
-   System.Debug('CSABAX start add2ConsolidatedList');
+   System.Debug('CSABAX start add2ConsolidatedList. currenrsize = ' + consList.size() + ' for newcons = ' +  newcons);
    if(consList.size() > 0)
      {
      //check if the last  consokidatd  has  the same value  aand is contingent
@@ -117,40 +117,43 @@ private static void add2ConsolidatedList(List<Product_SubscriptionItem__c> consL
      Net_Value__c is not sue the best.  Think deeper.  2 year X  vs. 1  Year X = 3 year 2X? not sure. Probably we
      can do this if the 2 durations are the same otherwise keep the lastCon  and add a new one
      *************************************************************************************************************/
-     if(lastcons.End_Date__c == newcons.Start_Date__c.addDays(-1) && lastcons.Net_Value__c == newcons.Net_Value__c)
+     if(lastcons.End_Date__c == newcons.Start_Date__c.addDays(-1) && 
+        (lastcons.Net_Value__c == newcons.Net_Value__c //wee need to consider other fields othewise we miss contingency of 2+ items
+         ||
+         lastcons.QuoteItem_Value__c == newcons.Net_Value__c  //just temporarily., the best would be ARR
+        )
+       )
         {
          lastcons.End_Date__c = newcons.End_Date__c;
          lastcons.Net_Value__c = lastcons.Net_Value__c + newcons.Net_Value__c;  //????????????????
          return;
         }
      }
-   
-   consList.add(newcons); 
+
+   newcons.External_Id__c = newcons.External_Id__c + '_' + consList.size();   //Use this only i the NEW
+   if(newcons.Net_Value__c > 0)
+      consList.add(newcons); 
 }
 
 
 /*****************************************************
 after introducing itemOrder no more need the Dynamic
 SOQL. Revorw  of the initial version.
-Do not try  t handle  Contingency at each step. Do it
-only when new cotingent StartDate occure. Within the
-same StartDate do only  the consolidation and try to
-merge only when addign item to consolidatedPSIs list
 *****************************************************/
-public static void ConsolidateItems4Subs(ID subscrID)
+public static void ConsolidateItems4Subs_CURRENT(ID subscrID)
 {
 DeleteConsolidatedItems(subscrID,false);
 
 List<Product_SubscriptionItem__c> consolidatedPSIs = new List<Product_SubscriptionItem__c>();
 //Build Dynamic SOQL becase  during test I can not assure right order due to missing Opportunities
-String dynSQL = 'Select Id,Name,Parent_PS__c,Start_Date__c,End_Date__c,Net_Value__c,QuoteItem_NetTotal__c,QuoteItem_Value__c,Type__c,Opp_Type__c,Day_Duration__c  ';
+String dynSQL = 'Select Id,Name,Parent_PS__c,Start_Date__c,End_Date__c,Net_Value__c,QuoteItem_NetTotal__c,QuoteItem_Value__c,Type__c,OppType__c,Day_Duration__c  ';
 dynSQL = dynSQL + ',OriginQuote_Line__c, OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Name,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__c';
 dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate';
 dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__SegmentIndex__c,Duration__c';
 dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Number_of_ACV_Years__c';
 dynSQL = dynSQL + ' ,ParentSubscription__c,ParentSubscription__r.Product__c,Quantity__c,YearIndex__c,External_Id__c';
 dynSQL = dynSQL + ' from Product_SubscriptionItem__c where ParentSubscription__c = \'' + subscrID  + '\'';
-dynSQL = dynSQL + ' and RecordTypeID = \'' +  qliRTID + '\'';
+dynSQL = dynSQL + ' and RecordTypeID = \'' +  qliRTID + '\'  ';
 
 if(Test.isRunningTest())
 {
@@ -158,7 +161,7 @@ dynSQL = dynSQL + ' order by Start_Date__c asc,Name';
 }
 else 
 {
-dynSQL = dynSQL + ' order by Start_Date__c asc,itemOrder__c,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate asc';
+dynSQL = dynSQL + ' order by Start_Date__c asc,itemOrder__c,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate asc ';
 }
 System.Debug('CSABAX dynSql = ' + dynSQL);
 List<Product_SubscriptionItem__c> psis = Database.query(dynSQL);
@@ -297,14 +300,13 @@ for(integer i = 1; i<itemcount; i++)
       if(cc.Net_Value__c > 0)
          {
          cc.External_Id__c = cc.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.   
-         //2020.01.27. consolidatedPSIs.add(cc); 
          add2ConsolidatedList(consolidatedPSIs,cc);  
          }
 
       //if the current item is an upsell we have to handle it  2020.01.21.
-      if(currentItem.Opp_Type__c == 'upsell')
+      if(currentItem.OppType__c == 'upsell')
          {
-         currentconsolidated = upsell(prevItem,currentItem); 
+         currentconsolidated = upsell(prevItem,makeItemConsolidated(currentItem)); 
          currentconsolidated.RecordTypeID = consRTID; 
          }
       else 
@@ -357,24 +359,28 @@ for(integer i = 1; i<itemcount; i++)
 
 }
 
-/*****************************************************
-after introducing itemOrder no more need the Dynamic
-SOQL
-*****************************************************/
-public static void ConsolidateItems4Subs_OLD(ID subscrID)
+/****************************************************
+Do not try to handle Contingency at each step. Do it
+only when new cotingent StartDate occure. Within the
+same StartDate do only  the consolidation and try to
+merge only when addign item to consolidatedPSIs list
+NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW.
+****************************************************/
+public static void ConsolidateItems4Subs(ID subscrID)
 {
 DeleteConsolidatedItems(subscrID,false);
 
 List<Product_SubscriptionItem__c> consolidatedPSIs = new List<Product_SubscriptionItem__c>();
+
 //Build Dynamic SOQL becase  during test I can not assure right order due to missing Opportunities
-String dynSQL = 'Select Id,Name,Parent_PS__c,Start_Date__c,End_Date__c,Net_Value__c,QuoteItem_NetTotal__c,QuoteItem_Value__c,Type__c,Opp_Type__c,Day_Duration__c  ';
+String dynSQL = 'Select Id,Name,Parent_PS__c,Start_Date__c,End_Date__c,Net_Value__c,QuoteItem_NetTotal__c,QuoteItem_Value__c,Type__c,OppType__c,Day_Duration__c  ';
 dynSQL = dynSQL + ',OriginQuote_Line__c, OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Name,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__c';
 dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate';
 dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__SegmentIndex__c,Duration__c';
 dynSQL = dynSQL + ' ,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Number_of_ACV_Years__c';
 dynSQL = dynSQL + ' ,ParentSubscription__c,ParentSubscription__r.Product__c,Quantity__c,YearIndex__c,External_Id__c';
 dynSQL = dynSQL + ' from Product_SubscriptionItem__c where ParentSubscription__c = \'' + subscrID  + '\'';
-dynSQL = dynSQL + ' and RecordTypeID = \'' +  qliRTID + '\'';
+dynSQL = dynSQL + ' and RecordTypeID = \'' +  qliRTID + '\' ';
 
 if(Test.isRunningTest())
 {
@@ -382,10 +388,11 @@ dynSQL = dynSQL + ' order by Start_Date__c asc,Name';
 }
 else 
 {
-dynSQL = dynSQL + ' order by Start_Date__c asc,itemOrder__c,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate asc';
+dynSQL = dynSQL + ' order by Start_Date__c asc,itemOrder__c,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate asc ';
 }
 System.Debug('CSABAX dynSql = ' + dynSQL);
 List<Product_SubscriptionItem__c> psis = Database.query(dynSQL);
+
 /*************************************************************************************************************************************************************************************
 List<Product_SubscriptionItem__c> psis = [Select Id,Name,Parent_PS__c,Start_Date__c,End_Date__c,Net_Value__c,QuoteItem_NetTotal__c,QuoteItem_Value__c,Type__c,
                                           OriginQuote_Line__c, OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Name,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__c,
@@ -394,9 +401,10 @@ List<Product_SubscriptionItem__c> psis = [Select Id,Name,Parent_PS__c,Start_Date
                                           OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Number_of_ACV_Years__c
                                           ,ParentSubscription__c,ParentSubscription__r.Product__c
                                           ,Quantity__c,YearIndex__c,External_Id__c
+                                          ,Product_SubscriptionItem__c.OppType__c,Product_SubscriptionItem__c.Day_Duration__c
                                           from Product_SubscriptionItem__c where ParentSubscription__c = :subscrID
                                           and RecordTypeID = :qliRTID
-                                          order by Start_Date__c asc,
+                                          order by Start_Date__c asc,itemOrder__c,
                                           OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.CloseDate asc]; //2019.01.03
 *************************************************************************************************************************************************************************************/
 
@@ -418,7 +426,6 @@ if(itemcount == 1)
    return;
    }
 
-
 for(integer i = 1; i<itemcount; i++)
    {
     Product_SubscriptionItem__c currentItem = psis[i];
@@ -427,76 +434,23 @@ for(integer i = 1; i<itemcount; i++)
     System.Debug('CSABAX currentItem = ' + currentItem); 
     System.Debug('CSABAX prevItem = ' + prevItem);     
 
-    /************************ SAME START DATE START *****************/
+    /************************ SAME START DATE START ***************************/
     if(currentItem.Start_Date__c == prevItem.Start_Date__c)
     {
-    System.Debug('CSABAX either debook or a new logo same period');
+    System.Debug('CSABAX either debook or a New-logo/Renewal or an Upsell');
 
-    /*********** if the currentconsolidated has TYPE = "CONTINGENT" we should roll back the contingency to the previous period
-    and save it as final consolidated. Theoretically this item might continue the Consolidation chain but unlikelly BUT HAPPEN
-    *************************************************************************************************************************/ 
-    if(currentconsolidated.Type__c == 'CONTINGENT')
-       {
-        if(currentconsolidated.Net_Value__c != currentItem.QuoteItem_Value__c)      //2020.01.27. Net_value is not good here because is cumulated!
-           {
-            //we roll back the contingency because unlikely we can keep it bot not excluded.   
-            currentconsolidated.End_Date__c = currentItem.Start_Date__c.addDays(-1);
-            currentconsolidated.Duration__c = currentconsolidated.Start_Date__c.monthsBetween(currentconsolidated.End_Date__c);   
-            currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  
-            //we should Adjust  Net_Value__c when debooking!!! 2020.01.27. CHECK HOW WE ARE HANDLING CONTINGENCE AT CREATION!!
-            currentconsolidated.Net_Value__c = currentconsolidated.Net_Value__c - currentItem.QuoteItem_Value__c;       //2020.01.28.
-
-            add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
-            currentconsolidated = handleSameStart(prevItem,currentItem);  
-            continue;  //2020.01.27.             
-           }
-        else 
-           {
-           //iif the current item keep the continegcy ignore it because it  the same.
-           continue;
-           }
-       }
-
-    //we continue consolidation with Previos Item and Current Item,   
-    currentconsolidated = handleSameStart(prevItem,currentItem);   
+    currentconsolidated = handleSameStart(prevItem,currentItem); 
     continue;
     }
-    /************************ SAME START DATE END *****************************************************************************/    
+    /************************ SAME START DATE END ****************************/    
     
     /************************ CONTINGENT DATES START *************************/    
-    if(currentconsolidated.End_Date__c.addDays(1) == currentItem.Start_Date__c)
+    if(prevItem.End_Date__c.addDays(1) == currentItem.Start_Date__c)
     {
-    //start of a contingent new item   
     System.Debug('CSABAX start of a contingent new item');    
-    Product_SubscriptionItem__c cc = handleContingent(currentconsolidated,currentItem);
-    if(cc == null)
-      {
-       //we keep the currentconsolidated having it's duration extended
-      } 
-    else 
-      {
-       //we can mark currentconsolidated as final and continue with the cc currentItem new Candidate
-       if(currentconsolidated.Net_Value__c > 0)
-          {
-           currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.       
-           if(currentconsolidated.Type__c == NULL)
-              {   
-              currentconsolidated.Type__c = 'SINGLE ITEM';  
-              }       
-           //2020.01.27.  consolidatedPSIs.add(currentconsolidated);
-           add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
-          }
-       else 
-         {
-         //WARNING. Here I assume that the Net_Value__c CAN NOT BE < 0.  BUT there are such a cases   
-         //https://instructure--staging.my.salesforce.com/aEP2g0000008ROf
-         }   
-
-
-       currentconsolidated = cc.clone();
-       currentconsolidated.RecordTypeID = consRTID;
-      }  
-
+    
+    add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
+    currentconsolidated = makeItemConsolidated(currentItem);
     continue;
     }
     /************************ CONTINGENT DATES END ***************************/
@@ -504,7 +458,7 @@ for(integer i = 1; i<itemcount; i++)
     /************************ FUTURE DATES START *****************/    
     if(currentItem.Start_Date__c > prevItem.End_Date__c.addDays(1))
     {
-    //unlinked new future period   
+    //DO NOT FORGET THIS
     continue;
     }
     /************************ FUTURE DATES END ******************/    
@@ -512,64 +466,30 @@ for(integer i = 1; i<itemcount; i++)
 
     /************************ OVERLAPPED DATES START *********************************************************/    
     if(currentItem.Start_Date__c > prevItem.Start_Date__c && currentItem.Start_Date__c < prevItem.End_Date__c )
-    {
-    //overlapped item  
-    System.Debug('CSABAX overlapped item ');  
-    //if the new Item is overlapping with a CONTINGENT currentconsolidated we undo the contingency   
-    if(currentconsolidated.Type__c == 'CONTINGENT')
-       {
-        currentconsolidated.End_Date__c = currentItem.Start_Date__c.addDays(-1);
-        currentconsolidated.Duration__c = currentconsolidated.Start_Date__c.monthsBetween(currentconsolidated.End_Date__c);  
-        currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.  
-        //Reevaluate AAR and TSV                  
-        //2020.01.27. consolidatedPSIs.add(currentconsolidated);     
-        add2ConsolidatedList(consolidatedPSIs,currentconsolidated);
-       }
+    { 
+    System.Debug('CSABAX overlapped item ');
+    currentconsolidated = handleOverlap(currentconsolidated,currentItem);   
+    add2ConsolidatedList(consolidatedPSIs,currentconsolidated); 
 
-    //continue consolidation having the previous as cc
-    Product_SubscriptionItem__c cc = handleOverlap(prevItem,currentItem);   
-    if(cc != NULL)  
-      {
-      if(cc.Net_Value__c > 0)
-         {
-         cc.External_Id__c = cc.External_Id__c + '_' + consolidatedPSIs.size();  //2019.12.07.   
-         //2020.01.27. consolidatedPSIs.add(cc); 
-         add2ConsolidatedList(consolidatedPSIs,cc);  
-         }
-
-      //if the current item is an upsell we have to handle it  2020.01.21.
-      if(currentItem.Opp_Type__c == 'upsell')
-         {
-         currentconsolidated = upsell(prevItem,currentItem); 
-         currentconsolidated.RecordTypeID = consRTID; 
-         }
-      else 
-         {//this was before 2020.01.21.
-         currentconsolidated = currentItem.clone(); 
-         currentconsolidated.Net_Value__c = currentItem.QuoteItem_Value__c;
-         currentconsolidated.RecordTypeID = consRTID;  
-         currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();       
-         }
- 
-      }  
+    if(currentItem.OppType__c == 'upsell')
+      { 
+      currentconsolidated = upsell(prevItem,makeItemConsolidated(currentItem));
+      }
     else 
       {
-      //we might have a multiyear deal overruled. sart a new process
-      currentconsolidated = currentItem.clone(); 
-      currentconsolidated.Net_Value__c = currentItem.QuoteItem_Value__c;   
-      currentconsolidated.RecordTypeID = consRTID;            
-      }  
-
+      currentconsolidated = makeItemConsolidated(currentItem); 
+      }
+    
     continue; 
-    }
+    }//end of overlapped if
     /************************ OVERLAPPED DATES END ***********************************************************/
 
    }//end of for
 
+
+   //dont' forgot the last Consolidated item
    if(currentconsolidated.Net_Value__c != 0)
-     {
-      currentconsolidated.External_Id__c = currentconsolidated.External_Id__c + '_' + consolidatedPSIs.size();         
-      //2020.01.27. consolidatedPSIs.add(currentconsolidated);
+     {//do not add to the consolidate List Items with 0 revenue.        
       add2ConsolidatedList(consolidatedPSIs,currentconsolidated);  
      }
 
@@ -587,11 +507,22 @@ for(integer i = 1; i<itemcount; i++)
    System.Debug('CSABAX we have ' + consolidatedPSIs.size() + ' consolidated Subscription terms to insert and ' + thePSI2Upsert.size() + ' existing to update.');         
 
    thePSI2Upsert.addAll(consolidatedPSIs); 
-
    List<Database.UpsertResult> durs = Database.upsert(thePSI2Upsert,Product_SubscriptionItem__c.External_Id__c,false); 
    ProcessUpsertResult(durs);
    /*********************************************** END *************************************************************/
 
+}
+
+/************************************************************************************************
+consolidated item should be always a new record even when we make a current item consolidateditem
+************************************************************************************************/
+private static Product_SubscriptionItem__c makeItemConsolidated(Product_SubscriptionItem__c item)
+{
+  Product_SubscriptionItem__c currentconsolidated = item.clone(); 
+  currentconsolidated.Net_Value__c = item.QuoteItem_Value__c;   
+  currentconsolidated.RecordTypeID = consRTID; 
+
+  return currentconsolidated;  
 }
 
 /***************************************************************************************************************************
@@ -611,7 +542,7 @@ if(item.QuoteItem_Value__c < 0 || (Test.isRunningTest() == true && cc.QuoteItem_
    retval.Type__c = 'DEBOOKED'; 
 
   }
-else if(item.Opp_Type__c == 'Upsell')
+else if(item.OppType__c == 'Upsell')
   {
    //try to handle here the real upsell
    //here instead  taking over the old item we add gthe current item's value to the current one
@@ -705,11 +636,26 @@ OR
 
 XXXXXXXXXXXXXXXXXXX
            YYYYYYYY
-----------------
+-------------------
 XXXXXXXXXX|XXX+YYYY
 
-Regardless if we upsell to left  or Right side  the summed result will be the same.           The leftover value  will differ 
+OR maybe?
+
+XXXXXXXXXXXXXXXXXXX
+      YYYYYYYY
+-------------------
+XXXXX|XXX+YYYY|XXXX
+
+OR?    NOT CORRECT!
+XXXXXXXXXXXXXXXXXXX
+          YYYYYYYYYYYYY
+-------------------
+XXXXXXXXX|YYYY+XXXX|YYY
+
+Regardless if we upsell to left  or Right side  the summed result will be the same.           
+The leftover value  will differ 
 WE SHOULD KNOW IF IS A LEFT OR RIGHT UPSELL
+Return value will be the item which holds the SUMMARY
 ****************************************************************************************************************************/
 private static Product_SubscriptionItem__c upsell(Product_SubscriptionItem__c prevItem, Product_SubscriptionItem__c currItem)
 {
@@ -722,17 +668,20 @@ Decimal prevRatio = currD.divide(prevD,2);
 
 if(prevItem.Start_Date__c == currItem.Start_Date__c)
 {
+//left Upsell
 retval.Start_Date__c = prevItem.Start_Date__c;
 retval.End_Date__c = currItem.Start_Date__c.addDays(-1);
 }
 else if(prevItem.End_Date__c == currItem.End_Date__c)
 {
+//right upsell    
 retval.Start_Date__c = currItem.Start_Date__c;
 retval.End_Date__c = currItem.End_Date__c;   
 }
 else 
 {
-//this should not happen. Middle-Upsell not handled. ignre upsell and currItem take over
+//this should not happen. Middle-Upsell not handled. ignore upsell and currItem take over
+//we  can try  to broke it  in pieces andcreate a fake Item  fo the leftover
 retval = currItem;
 return retval;
 }
