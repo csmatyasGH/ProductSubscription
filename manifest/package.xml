@@ -1,96 +1,80 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>BuildSubscriptionPOC</members>
-        <members>ProductSubscriptionUtility</members>        
-        <members>BuildSubscription_test</members>    
-
-       <members>batchProcessAllOpps2PSPOC</members>  
-       <!-- the below 2 are not needed by  the final solution-->
-       <members>batchReplicateProductSubscriptionPOC</members>  
-       <members>batchConsolidatePSItems</members>
-  
-       <members>OppDataChangeCaptureTriggerXHandler</members>  
-
-        <members>queueableConsolidatePSIs</members> 
-        
-        <!-- helper stuff-->
         <members>DynDataViewerApexContr_WEH</members>
+        <members>OppDataChangeCaptureTriggerXHandler</members>
+        <members>ProductSubscriptionUtility</members>
+        <members>batchConsolidatePSItems</members>
+        <members>batchProcessAllOpps2PSPOC</members>
+        <members>batchReplicateProductSubscriptionPOC</members>
+        <members>queueableConsolidatePSIs</members>
+
+
+        <!--members>BuildSubscription_test</members-->
+        <members>BuildSubscriptionPOCTest</members>   
+        <members>ProductSubscriptionUtilityTest</members>             
         <name>ApexClass</name>
     </types>
-    
-    
-    <types>    <!-- Helper stuff -->
+    <!--types>
         <members>vf_HostTerr_on_UTM</members>
         <name>ApexPage</name>
+    </types-->
+
+    <types>
+        <members>OpportunityChangeEventTrigger</members>
+        <members>ProcessPSBuilderTrigger</members>       
+        <name>ApexTrigger</name>
     </types>
-    
-    <types>   <!-- Helper stuff -->
+    <types>
         <members>DynTabDataViewer</members>
         <members>DynTabDataViewer_app</members>
         <members>LightningDataTable</members>
         <members>LightningDataTable_app</members>
         <name>AuraDefinitionBundle</name>
     </types>
-
     <types>
-        <members>ProcessPSBuilderTrigger</members>  
-        <members>OpportunityChangeEventTrigger</members>
-        <name>ApexTrigger</name>
-    </types>    
-
-    <types>
-        <members>ProductSubscription_POC__c</members>
-        <members>Product_SubscriptionItem__c</members>     
-        <!-- helper stuff -->
-        <members>DynamicDataViewerConfigurator__c</members>
-        <name>CustomObject</name>
-    </types>   
-
-    <types>
-        <members>ProductSubscription__c.Number_of_Terms__c</members>
+        <members>Opportunity.HasonBehalf__c</members>
         <members>Opportunity.OnBehalfDealCount__c</members>
-       <members>Opportunity.HasonBehalf__c</members>
-       <members>ProductSubscriptionOpportunity__c.External_Id__c</members>       
+        <members>ProductSubscriptionOpportunity__c.External_Id__c</members>
+        <members>ProductSubscription__c.Number_of_Terms__c</members>
+        <members>ProductSubscription__c.External_Id__c</members>        
         <name>CustomField</name>
-    </types>      
-
+    </types>
     <types>
-        <members>ProductSubscriptionBuilder</members>       
-        <members>BuildSubscriptionsFromOpp</members>           
-        <name>Flow</name>
-    </types>    
-
-    <types>
-        <members>ProductSubscription__c.Build_POC_Prod_Subscr</members>
-        <members>ProductSubscription__c.MergeItem2Term</members>        
-        <members>Opportunity.BuildProdSubscrPOC</members>
-        <name>WebLink</name>
-    </types>    
-
-    <types>
-        <members>Opportunity.BuildSubscrPOC</members>     
-        <name>QuickAction</name>
-    </types>    
-
-    <types>
-        <members>ProductSubscription_POC__c-ProductSubscription_POC Layout</members>
-        <members>Product_SubscriptionItem__c-Product_SubscriptionItem Layout</members>
-        <members>Opportunity-Admin Opportunity Layout</members>      
-        <members>DynamicDataViewerConfigurator__c-DynamicDataViewerConfigurator Layout</members>
-        <name>Layout</name>
-    </types>  
-
+        <members>DynamicDataViewerConfigurator__c</members>
+        <members>ProductSubscription_POC__c</members>
+        <members>Product_SubscriptionItem__c</members>
+        <name>CustomObject</name>
+    </types>
     <types>
         <members>ProductSubscription_POC__c</members>
         <name>CustomTab</name>
-    </types>       
-
-        
-    
-    <types>   
+    </types>
+    <types>
+        <members>BuildSubscriptionsFromOpp</members>
+        <members>ProductSubscriptionBuilder</members>
+        <name>Flow</name>
+    </types>
+    <types>
+        <members>DynamicDataViewerConfigurator__c-DynamicDataViewerConfigurator Layout</members>
+        <members>ProductSubscription_POC__c-ProductSubscription_POC Layout</members>
+        <members>Product_SubscriptionItem__c-Product_SubscriptionItem Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
         <members>Admin</members>
         <name>Profile</name>
-    </types>     
+    </types>
+    <types>
+        <members>Opportunity.BuildSubscrPOC</members>
+        <name>QuickAction</name>
+    </types>
+    <types>
+        <members>ProductSubscription__c.Build_POC_Prod_Subscr</members>
+        <members>ProductSubscription__c.MergeItem2Term</members>        
+        <members>Opportunity.BuildProdSubscrPOC</members>  	        
+        <name>WebLink</name>
+    </types>
     <version>47.0</version>
 </Package>

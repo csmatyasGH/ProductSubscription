@@ -13,7 +13,7 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>BuildSubscription_test</apexClass>
+        <apexClass>BuildSubscriptionPOCTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -26,6 +26,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ProductSubscriptionUtility</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ProductSubscriptionUtilityTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -121,6 +125,11 @@ ES-20063</description>
         <editable>true</editable>
         <field>ProductSubscription_POC__c.Status__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>ProductSubscription__c.External_Id__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -286,9 +295,6 @@ ES-20063</description>
         <layout>DynamicDataViewerConfigurator__c-DynamicDataViewerConfigurator Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Opportunity-Admin Opportunity Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
         <layout>ProductSubscription_POC__c-ProductSubscription_POC Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
@@ -329,10 +335,6 @@ ES-20063</description>
         <object>Product_SubscriptionItem__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
-    <pageAccesses>
-        <apexPage>vf_HostTerr_on_UTM</apexPage>
-        <enabled>true</enabled>
-    </pageAccesses>
     <recordTypeVisibilities>
         <default>false</default>
         <recordType>Product_SubscriptionItem__c.Consolidated</recordType>
