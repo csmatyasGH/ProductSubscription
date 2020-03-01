@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Net_Value__c</fullName>
+    <defaultValue>0</defaultValue>
     <description>filed populated only for Consolidated items</description>
     <externalId>false</externalId>
-    <inlineHelpText>Calculated field during Consolidation</inlineHelpText>
+    <inlineHelpText>Calculated field during Consolidation.(0 at creation time for QLI item)</inlineHelpText>
     <label>Net Value</label>
     <precision>12</precision>
     <required>false</required>

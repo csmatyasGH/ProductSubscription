@@ -1,0 +1,35 @@
+<apex:page standardController="User2TeritoryMonitor__c" >
+    <apex:includeLightning />
+    <div id="LcDisplayId"></div> 
+
+<!-- the question is  whihc one  run first?  the Extension class constructor if it  would have one and get/set  OR  the script below??  THE SCRIPT!!-->
+ <script>
+    $Lightning.use("c:DynTabDataViewer_app", // Here Is Lightning Application Name
+                   function()
+                           {
+                               /* $Lightning.createComponent(String type, Object attributes, String locator, function callback) */
+                               $Lightning.createComponent("c:DynTabDataViewer", //'DynTabDataViewer' is Lightning Component Name which we are Displaying In Vf Page
+                                        {//optional Set Lightning Component Attributes Property before creating Lightning Component In Visualforce page
+                                         DestinationRecord_ID : '{!$CurrentPage.parameters.Id}'
+                                        },
+                                        "LcDisplayId", //Locator parameter
+                                        function(component)
+                                            {
+                                             // create component Callback, Lightning Component has been Created,
+                                             //here aslo we can initialize attributes
+                                             //component.set("v.accId",'blablabla');
+                                             //try to see if  at this stage  we have VF page properties created
+                                             //in order to  see how  we can communicate between VF page and lightning comp.
+                                            }
+                                                      );//end of method createComponent
+                           }//end of method function (parameter of function use(...)
+                  );//end of  method $Lightning.use(..)
+
+    /****************************************************************************************************
+    I found the above syntax with defining functions inside function difficult to follow and not readable
+    ****************************************************************************************************/
+
+ </script>      
+ 
+ 
+</apex:page>

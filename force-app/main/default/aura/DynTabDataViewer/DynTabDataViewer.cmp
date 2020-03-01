@@ -1,0 +1,55 @@
+<aura:component controller="DynDataViewerApexContr_WEH" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes"> 
+
+<aura:attribute name="Needtab" type="Boolean"/>
+
+<aura:attribute name="mySetupdata" type="Object"/>         <!-- will be calculated in its  controller and will be the source of the child attributes -->
+<aura:attribute name="DestinationRecord_ID" type="String"/><!--will receive  parameter  from the caller VF  page or calculated in doDataInit -->
+    
+<aura:handler name="init" value="{!this}" action="{!c.doDataInit}" /> <!-- calling doInit method in Component Controller -->     
+
+<aura:attribute access="private" name="error" type="String" default=""/>
+
+
+
+<aura:if isTrue="{! !empty(v.error)}">
+   <lightning:textarea name="errorMessage" value="{!v.error}" label="Error: "/>
+<aura:set attribute="else">
+	<aura:if isTrue="{!v.Needtab}">
+    
+		<lightning:tabset >
+		 <aura:iteration items="{!v.mySetupdata}" var="obj">
+                       <div class=" slds-tabs_scoped">
+                       <ul class="slds-tabs_scoped__nav" role="tablist" >
+					   <lightning:tab label="{!obj.childObjLabel}"  >
+							 <c:LightningDataTable childObjName="{!obj.childObjName}"
+												   LookupFieldName="{!obj.LookupFieldNameOnSouce}"
+												   mycolumnNames="{!obj.SourceColumnNames}"
+                                                   mycolumnLabels="{!obj.SourceColumnLabels}"
+												   recordId="{!obj.ParentRecordID}"
+                                                   childObjPluralLbl="{!obj.childObjNamePlural}"/>
+					   </lightning:tab>
+                       </ul>
+                       </div>
+		 </aura:iteration>
+		</lightning:tabset>  
+
+	<aura:set attribute="else">
+		<aura:iteration items="{!v.mySetupdata}" var="obj">
+							 <c:LightningDataTable childObjName="{!obj.childObjName}"
+												   LookupFieldName="{!obj.LookupFieldNameOnSouce}"
+												   mycolumnNames="{!obj.SourceColumnNames}"
+                                                   mycolumnLabels="{!obj.SourceColumnLabels}"
+												   recordId="{!obj.ParentRecordID}"
+                                                   childObjPluralLbl="{!obj.childObjNamePlural}"/> 
+		 </aura:iteration>
+	</aura:set>
+	</aura:if>
+</aura:set>
+</aura:if>
+
+
+
+
+    
+	
+</aura:component>

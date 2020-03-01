@@ -3,7 +3,7 @@
     <fullName>QuoteItem_Value__c</fullName>
     <description>filled based on the Original QuoteLine Item NetTotal_Rounded__c</description>
     <externalId>false</externalId>
-    <inlineHelpText>Initialy folow  the CPQ Item Value(Local currencey). Adjusted during Consolidation</inlineHelpText>
+    <inlineHelpText>Initialy folow  the CPQ Item Value.  Value will be Equal with the Value in the deal&#39;s Currency.                             Adjusted during Consolidation</inlineHelpText>
     <label>QuoteItem_Value</label>
     <precision>12</precision>
     <required>false</required>

@@ -29,6 +29,11 @@
                 <default>false</default>
                 <label>RESET</label>
             </value>
+            <value>
+                <fullName>CONSOLIDATED_2.0</fullName>
+                <default>false</default>
+                <label>CONSOLIDATED_2.0</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

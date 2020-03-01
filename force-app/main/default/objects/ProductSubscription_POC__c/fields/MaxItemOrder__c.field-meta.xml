@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxItemOrder__c</fullName>
+    <description>Serve only  debugging purposes.  It pull the max  value  of the Item order form child Items</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Serve only  debugging purposes.  It pull the max  value  of the Item order form child Items</inlineHelpText>
+    <label>MaxItemOrder</label>
+    <summarizedField>Product_SubscriptionItem__c.itemOrder__c</summarizedField>
+    <summaryForeignKey>Product_SubscriptionItem__c.ParentSubscription__c</summaryForeignKey>
+    <summaryOperation>max</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

@@ -33,14 +33,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>itemOrder__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>SubscriptionTermStatus__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>AOL_Percentage__c</field>
             </layoutItems>
         </layoutColumns>
@@ -55,6 +47,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Parent_PS__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Type__c</field>
             </layoutItems>
             <layoutItems>
@@ -62,8 +58,12 @@
                 <field>External_Id__c</field>
             </layoutItems>
             <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>SubscriptionTermStatus__c</field>
+            </layoutItems>
+            <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Parent_PS__c</field>
+                <field>itemOrder__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
@@ -82,6 +82,10 @@
                 <behavior>Edit</behavior>
                 <field>OppType__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Deal_Currency__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -91,6 +95,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>OppCreatedDate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Creation_Type__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
@@ -108,10 +116,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>End_Date__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Date_Interval__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -188,7 +192,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h2g000000NRUx</masterLabel>
+        <masterLabel>00h8A000000lGkM</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

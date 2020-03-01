@@ -5,6 +5,17 @@
     <description>record type  of a consolidated Subscription item</description>
     <label>Consolidated</label>
     <picklistValues>
+        <picklist>Creation_Type__c</picklist>
+        <values>
+            <fullName>on-Behalf</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>own-Deal</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Type__c</picklist>
         <values>
             <fullName>AMMENDED</fullName>

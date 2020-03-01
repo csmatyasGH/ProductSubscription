@@ -2,12 +2,16 @@
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>All</fullName>
     <columns>NAME</columns>
+    <columns>MaxItemOrder__c</columns>
     <columns>Account__c</columns>
     <columns>Product__c</columns>
-    <columns>ExternalID__c</columns>
     <columns>CREATED_DATE</columns>
-    <columns>LAST_UPDATE</columns>
     <columns>Status__c</columns>
+    <columns>NrOfQLI_Items__c</columns>
+    <columns>Number_of_Expected_Items__c</columns>
+    <columns>NrofOnBehalfItems__c</columns>
+    <columns>NrOfItemsConsolidated__c</columns>
+    <columns>LAST_UPDATE</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>
     <language>en_US</language>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <processMetadataValues>
             <name>apexSelection</name>
@@ -8,11 +8,14 @@
             </value>
         </processMetadataValues>
         <name>myRule_1_A1</name>
-        <label>create PSB header</label>
+        <label>Create POC PS</label>
         <locationX>100</locationX>
         <locationY>200</locationY>
-        <actionName>01pS0000004vMkKNotFound</actionName>
-        <actionType xsi:nil="true"/>
+        <actionName>ProductSubscriptionUtility</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>myDecision2</targetReference>
+        </connector>
         <inputParameters>
             <processMetadataValues>
                 <name>dataType</name>
@@ -113,6 +116,48 @@
             <processMetadataValues>
                 <name>leftHandSideLabel</name>
                 <value>
+                    <stringValue>psID</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>maxOccurs</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>objectType</name>
+                <value>
+                    <stringValue/>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>Reference</stringValue>
+                </value>
+            </processMetadataValues>
+            <name>psID</name>
+            <value>
+                <elementReference>myVariable_current.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>ID</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
                     <stringValue>prodID</stringValue>
                 </value>
             </processMetadataValues>
@@ -148,11 +193,11 @@
             </value>
         </processMetadataValues>
         <name>myRule_3_A1</name>
-        <label>Consolidate PSItems</label>
+        <label>Consolidate Items</label>
         <locationX>300</locationX>
         <locationY>200</locationY>
-        <actionName>01pS0000004vMkKNotFound</actionName>
-        <actionType xsi:nil="true"/>
+        <actionName>ProductSubscriptionUtility</actionName>
+        <actionType>apex</actionType>
         <inputParameters>
             <processMetadataValues>
                 <name>dataType</name>
@@ -246,11 +291,11 @@
             </value>
         </processMetadataValues>
         <name>myRule_5_A1</name>
-        <label>Rest Consolidated items</label>
+        <label>Rest Consolidated Items</label>
         <locationX>500</locationX>
         <locationY>200</locationY>
-        <actionName>01pS0000004vMkKNotFound</actionName>
-        <actionType xsi:nil="true"/>
+        <actionName>ProductSubscriptionUtility</actionName>
+        <actionType>apex</actionType>
         <inputParameters>
             <processMetadataValues>
                 <name>dataType</name>
@@ -291,6 +336,104 @@
             <name>operation</name>
             <value>
                 <stringValue>Reset</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>ID</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
+                    <stringValue>psID</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>maxOccurs</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>objectType</name>
+                <value>
+                    <stringValue/>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>Reference</stringValue>
+                </value>
+            </processMetadataValues>
+            <name>psID</name>
+            <value>
+                <elementReference>myVariable_current.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <processMetadataValues>
+            <name>apexSelection</name>
+            <value>
+                <stringValue>Get Subscription</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>myRule_7_A1</name>
+        <label>Comsolidate 2.0</label>
+        <locationX>700</locationX>
+        <locationY>200</locationY>
+        <actionName>ProductSubscriptionUtility</actionName>
+        <actionType>apex</actionType>
+        <inputParameters>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>String</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
+                    <stringValue>operation</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>maxOccurs</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>objectType</name>
+                <value>
+                    <stringValue/>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>String</stringValue>
+                </value>
+            </processMetadataValues>
+            <name>operation</name>
+            <value>
+                <stringValue>CONSOLIDATED_2.0</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -386,34 +529,10 @@
             <name>myRule_3</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <processMetadataValues>
-                    <name>inputDataType</name>
-                    <value>
-                        <stringValue>Picklist</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>leftHandSideType</name>
-                    <value>
-                        <stringValue>Picklist</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>operatorDataType</name>
-                    <value>
-                        <stringValue>String</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>rightHandSideType</name>
-                    <value>
-                        <stringValue>Picklist</stringValue>
-                    </value>
-                </processMetadataValues>
-                <leftValueReference>myVariable_current.Status__c</leftValueReference>
+                <leftValueReference>formula_myRule_3</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>CONSOLODATED</stringValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -433,6 +552,9 @@
         <label>myDecision4</label>
         <locationX>50</locationX>
         <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>myDecision6</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>default</defaultConnectorLabel>
         <rules>
             <name>myRule_5</name>
@@ -475,6 +597,34 @@
         </rules>
     </decisions>
     <decisions>
+        <processMetadataValues>
+            <name>index</name>
+            <value>
+                <numberValue>3.0</numberValue>
+            </value>
+        </processMetadataValues>
+        <name>myDecision6</name>
+        <label>myDecision6</label>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>default</defaultConnectorLabel>
+        <rules>
+            <name>myRule_7</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>formula_myRule_7</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>myRule_7_A1</targetReference>
+            </connector>
+            <label>Consolidate 2.0</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>myRule_3_pmetdec</name>
         <label>Previously Met Decision</label>
         <locationX>300</locationX>
@@ -502,34 +652,10 @@
             <name>myRule_3_pmetrule</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <processMetadataValues>
-                    <name>inputDataType</name>
-                    <value>
-                        <stringValue>Picklist</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>leftHandSideType</name>
-                    <value>
-                        <stringValue>Picklist</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>operatorDataType</name>
-                    <value>
-                        <stringValue>String</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>rightHandSideType</name>
-                    <value>
-                        <stringValue>Picklist</stringValue>
-                    </value>
-                </processMetadataValues>
-                <leftValueReference>myVariable_old.Status__c</leftValueReference>
+                <leftValueReference>formula_myRule_3_pmetrule</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>CONSOLODATED</stringValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <label>Previously Met - Prev</label>
@@ -596,7 +722,7 @@
             <label>Previously Met - Prev</label>
         </rules>
     </decisions>
-    <description>Build stuff around Product Ssubscription</description>
+    <description>Build stuff around Product Ssubscription 2.1</description>
     <formulas>
         <processMetadataValues>
             <name>originalFormula</name>
@@ -614,6 +740,93 @@ TEXT([ProductSubscription_POC__c].Status__c) = &#39;CREATED&#39;
 (
 ISNEW() ,
 TEXT({!myVariable_current.Status__c}) = &#39;CREATED&#39;
+)</expression>
+    </formulas>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>AND
+(
+OR
+    (
+     PRIORVALUE([ProductSubscription_POC__c].Status__c) = &quot;CONSOLIDATED_2.0&quot; ,
+      [ProductSubscription_POC__c].NrOfItemsConsolidated__c = 0
+     )
+,
+TEXT([ProductSubscription_POC__c].Status__c) = &quot;CONSOLODATED&quot;
+)</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_myRule_3</name>
+        <dataType>Boolean</dataType>
+        <expression>AND
+(
+OR
+    (
+     PRIORVALUE({!myVariable_current.Status__c}) = &quot;CONSOLIDATED_2.0&quot; ,
+      {!myVariable_current.NrOfItemsConsolidated__c} = 0
+     )
+,
+TEXT({!myVariable_current.Status__c}) = &quot;CONSOLODATED&quot;
+)</expression>
+    </formulas>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>AND
+(
+OR
+    (
+     PRIORVALUE([ProductSubscription_POC__c].Status__c) = &quot;CONSOLIDATED_2.0&quot; ,
+      [ProductSubscription_POC__c].NrOfItemsConsolidated__c = 0
+     )
+,
+TEXT([ProductSubscription_POC__c].Status__c) = &quot;CONSOLODATED&quot;
+)</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_myRule_3_pmetrule</name>
+        <dataType>Boolean</dataType>
+        <expression>AND
+(
+OR
+    (
+     PRIORVALUE({!myVariable_old.Status__c}) = &quot;CONSOLIDATED_2.0&quot; ,
+      {!myVariable_old.NrOfItemsConsolidated__c} = 0
+     )
+,
+TEXT({!myVariable_old.Status__c}) = &quot;CONSOLODATED&quot;
+)</expression>
+    </formulas>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>AND
+(
+OR
+    (
+     PRIORVALUE([ProductSubscription_POC__c].Status__c) = &quot;CONSOLODATED&quot; ,
+      [ProductSubscription_POC__c].NrOfItemsConsolidated__c = 0
+     )
+,
+TEXT([ProductSubscription_POC__c].Status__c) = &quot;CONSOLIDATED_2.0&quot;
+)</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_myRule_7</name>
+        <dataType>Boolean</dataType>
+        <expression>AND
+(
+OR
+    (
+     PRIORVALUE({!myVariable_current.Status__c}) = &quot;CONSOLODATED&quot; ,
+      {!myVariable_current.NrOfItemsConsolidated__c} = 0
+     )
+,
+TEXT({!myVariable_current.Status__c}) = &quot;CONSOLIDATED_2.0&quot;
 )</expression>
     </formulas>
     <interviewLabel>ProductSubscriptionBuilder-3_InterviewLabel</interviewLabel>
@@ -644,7 +857,7 @@ TEXT({!myVariable_current.Status__c}) = &#39;CREATED&#39;
     </processMetadataValues>
     <processType>Workflow</processType>
     <startElementReference>myDecision</startElementReference>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>myVariable_current</name>
         <dataType>SObject</dataType>

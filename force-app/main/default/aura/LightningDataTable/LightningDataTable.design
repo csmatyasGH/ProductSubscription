@@ -1,0 +1,10 @@
+<design:component>
+
+	<design:attribute name="recordId" label="Current Record" />  <!--create attribute for this too and check how it behave --> 
+	<design:attribute name="childObjName" label="Source object" />
+	<design:attribute name="childObjPluralLbl" label="Source object plural label" />    
+	<design:attribute name="LookupFieldName" label="Matching field Name on source object" />  
+	
+	<design:attribute name="mycolumnNames" label="List of Field name to display" /> 
+	<design:attribute name="mycolumnLabels" label="List of field label to display" /> 		
+</design:component>

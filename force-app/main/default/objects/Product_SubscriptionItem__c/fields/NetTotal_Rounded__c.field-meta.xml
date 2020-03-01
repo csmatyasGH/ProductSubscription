@@ -4,6 +4,7 @@
     <externalId>false</externalId>
     <formula>OriginQuote_Line__r.Net_Total_Rounded__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>NO LONGER USED.</inlineHelpText>
     <label>NetTotal(R)</label>
     <precision>18</precision>
     <required>false</required>

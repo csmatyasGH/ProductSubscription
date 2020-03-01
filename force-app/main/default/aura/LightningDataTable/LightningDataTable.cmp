@@ -1,0 +1,147 @@
+<!--This is the Markup code for the Lightning comp-->  <!-- "DynDataViewerApexContr" -->
+<aura:component controller="DynDataViewerApexContr_WEH" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,lightning:availableForFlowScreens" >
+
+    <!--declare aura attributes-->	
+    <aura:attribute name="recordId" type="string" />       <!-- will campture record ID from context (BUT NOT ALWAYS! not from inside a screen flow)-->
+    <aura:attribute name="childObjName" type="string"  />
+    <aura:attribute name="childObjPluralLbl" type="string"  />
+    <aura:attribute name="LookupFieldName" type="string" />
+
+    <aura:attribute name="mycolumnLabels" type="string" /> <!-- this is a comma separated list  of labels -->
+    <aura:attribute name="mycolumnNames" type="string" />  <!-- this is a comma separated list  of fields -->
+    <aura:attribute name="mycolumnsLst" type="string[]"/>  <!-- will be set  based on data  from mycolumnNames OPTIMIZE THIS.-->    
+
+    <aura:attribute name="mydataLst" type="List"/>         <!-- will be set internally based  on the above 4 attributes. --> 
+ 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> <!-- calling doInit method in Component Controller -->    
+
+    <aura:attribute access="private" name="error" type="String" default=""/>
+
+    <!-- try to add sorting -->
+    <aura:attribute name="sortedBy" type="string"/> 
+    <aura:attribute name="sortedDirection" type="string"/> 
+
+    <aura:attribute name="viewType" type="string" />  <!-- try to  switch between Table and Tile-->
+
+    <aura:attribute name="baseUrl" type="String" default=""></aura:attribute> <!-- used from Card  href-->
+
+<html>
+
+<!--  try  to add some styling to datatable-->
+<head>
+<style>
+
+#dt1 
+{
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#dt1 td
+{
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#dt2 tr:nth-child(even){background-color: #dddddd;}
+
+#dt2 tr:hover {background-color: #f2f2f2;}
+
+#dt1 table thead th 
+{   
+   color: blue;
+   font-weight:bold;
+   border: 1px solid #ddd;
+   background: linear-gradient(to right, #ccf2ff,#ccccff);
+}
+
+#dt1 table thead th span
+{   
+background-color: #E0E0E0;
+}
+
+#tilele2
+{
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#tilele2 table
+{
+    border: 1px solid #ddd;
+    background-color: #e6faff;
+}
+
+</style>
+</head>
+
+        <aura:if isTrue="{! !empty(v.error)}">
+            <lightning:textarea name="errorMessage" value="{!v.error}" label="Error: "/>
+        <aura:set attribute="else">
+
+            <lightning:card title="{!(v.childObjPluralLbl + ' (' + v.mydataLst.length + ')')}" iconName="standard:account">
+			<aura:set attribute="actions">
+				<lightning:button label="{!(v.viewType=='Card'?'View Table':'View Card')}"  onclick="{!c.setViewType}" value="{!v.viewType}"/>
+			</aura:set>
+            <p>
+
+            <aura:if isTrue="{!or(and(v.viewType != 'Table',v.mycolumnsLst.length > 5,10 > v.mydataLst.length),v.viewType == 'Card')}">
+
+
+			<lightning:layout multipleRows="true"> 
+			<aura:iteration items="{!v.mydataLst}" var="records"> 
+			<lightning:layoutItem padding="around-small" size="6"> 
+			     <div id="tilele2" >
+							<lightning:tile label="{!records[1]}" href="{!(v.baseUrl + '/' + records[0])}">
+								<aura:set attribute="media">
+									<lightning:icon iconName="standard:groups"/>
+								</aura:set>
+									<aura:iteration items="{!v.mycolumnsLst}" var="col" indexVar="colCount">
+									<aura:if isTrue="{!(colCount > 0)}">
+												  <aura:iteration items="{!records}" var="recItem" indexVar="rowcount">
+													<aura:if isTrue="{!(rowcount == colCount+1)}">
+													<dl class="slds-dl_horizontal" >
+														<dt class="slds-dl_horizontal__label">
+															<p >{!col.label}:</p>
+														</dt>
+														<dd class="slds-dl_horizontal__detail slds-tile__meta">
+															<p class="slds-truncate" >{!recItem}</p>
+														</dd>
+													</dl>
+													</aura:if>
+												  </aura:iteration>
+									</aura:if>
+								   </aura:iteration>
+							</lightning:tile>
+			     </div>
+			</lightning:layoutItem>
+			</aura:iteration>
+			</lightning:layout>
+
+          <aura:set attribute="else">
+				<div id="dt1">
+				<lightning:datatable data="{!v.mydataLst}" 
+					columns="{!v.mycolumnsLst}" 
+					keyField="id"
+					hideCheckboxColumn="true"             
+					sortedBy="{!v.sortedBy}"               
+					sortedDirection="{!v.sortedDirection}" 
+					onsort="{!c.updateColumnSorting}" >    <!-- calling sortData method in Component Controller -->
+				</lightning:datatable> 
+				</div>
+
+           </aura:set>
+           </aura:if>
+
+            </p>
+            </lightning:card>
+
+
+       </aura:set>
+       </aura:if>
+
+ 
+</html>
+</aura:component>

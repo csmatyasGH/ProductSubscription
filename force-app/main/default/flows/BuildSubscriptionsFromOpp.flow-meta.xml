@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Build_POC_from_Subscription</name>
         <label>Build POC  from Subscription</label>
-        <locationX>798</locationX>
-        <locationY>403</locationY>
+        <locationX>811</locationX>
+        <locationY>467</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -32,8 +32,8 @@
     <actionCalls>
         <name>BuildProdSubs4Opp</name>
         <label>BuildProdSubs4Opp</label>
-        <locationX>812</locationX>
-        <locationY>92</locationY>
+        <locationX>806</locationX>
+        <locationY>203</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -55,8 +55,8 @@
     <actionCalls>
         <name>Create_onBehalf_Op_POC</name>
         <label>Create onBehalf Op POC</label>
-        <locationX>805</locationX>
-        <locationY>247</locationY>
+        <locationX>812</locationX>
+        <locationY>337</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
         <inputParameters>
@@ -78,14 +78,34 @@
             </value>
         </inputParameters>
     </actionCalls>
+    <actionCalls>
+        <name>MergerItems2Terms</name>
+        <label>MergerItems2Terms</label>
+        <locationX>378</locationX>
+        <locationY>559</locationY>
+        <actionName>ProductSubscriptionUtility</actionName>
+        <actionType>apex</actionType>
+        <inputParameters>
+            <name>psID</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>operation</name>
+            <value>
+                <stringValue>MergeI2T</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
     <decisions>
         <description>check if source is Opp of PS</description>
         <name>checkSource</name>
         <label>checkSource</label>
-        <locationX>381</locationX>
-        <locationY>93</locationY>
+        <locationX>368</locationX>
+        <locationY>186</locationY>
         <defaultConnector>
-            <targetReference>Get_PS_record</targetReference>
+            <targetReference>MergeI2T</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>is ProductSubsc</defaultConnectorLabel>
         <rules>
@@ -107,8 +127,8 @@
     <decisions>
         <name>IsOnBehalf</name>
         <label>IsOnBehalf</label>
-        <locationX>549</locationX>
-        <locationY>97</locationY>
+        <locationX>559</locationX>
+        <locationY>270</locationY>
         <defaultConnector>
             <targetReference>BuildProdSubs4Opp</targetReference>
         </defaultConnector>
@@ -129,7 +149,32 @@
             <label>onBehalf</label>
         </rules>
     </decisions>
-    <description>build PS POC  from Opp or PS</description>
+    <decisions>
+        <name>MergeI2T</name>
+        <label>MergeI2T</label>
+        <locationX>367</locationX>
+        <locationY>355</locationY>
+        <defaultConnector>
+            <targetReference>Get_PS_record</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isMerge</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Operation</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>MergIT</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>MergerItems2Terms</targetReference>
+            </connector>
+            <label>isMerge</label>
+        </rules>
+    </decisions>
+    <description>build PS POC  from Opp or PS 2.1</description>
     <interviewLabel>BuildSubscriptionsFromOpp {!$Flow.CurrentDateTime}</interviewLabel>
     <label>BuildSubscriptionsPOC</label>
     <processMetadataValues>
@@ -148,8 +193,8 @@
     <recordLookups>
         <name>Get_PS_record</name>
         <label>Get PS record</label>
-        <locationX>387</locationX>
-        <locationY>402</locationY>
+        <locationX>582</locationX>
+        <locationY>467</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Build_POC_from_Subscription</targetReference>
@@ -178,8 +223,8 @@
     <screens>
         <name>Product_Subscription_Items</name>
         <label>Product Subscription Items</label>
-        <locationX>1071</locationX>
-        <locationY>403</locationY>
+        <locationX>1058</locationX>
+        <locationY>468</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -231,8 +276,8 @@
     <screens>
         <name>PSItems_from_Opp</name>
         <label>Prod subscription Items from Opp</label>
-        <locationX>1081</locationX>
-        <locationY>91</locationY>
+        <locationX>1054</locationX>
+        <locationY>203</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -261,13 +306,13 @@
             <inputParameters>
                 <name>mycolumnNames</name>
                 <value>
-                    <stringValue>Name,Parent_PS__r.Name,ParentSubscription__r.Name,OriginOpportunity__r.Name,Start_Date__c,End_Date__c</stringValue>
+                    <stringValue>Name,Parent_PS__r.Name,ParentSubscription__r.Name,ParentSubscription__r.Account__r.Name,OriginOpportunity__r.Name,Start_Date__c,End_Date__c,ParentSubscription__r.NrOfQLI_Items__c,ParentSubscription__r.NrofOnBehalfItems__c</stringValue>
                 </value>
             </inputParameters>
             <inputParameters>
                 <name>mycolumnLabels</name>
                 <value>
-                    <stringValue>Name,ProdSubsc, POC ProdSubsc,Opportunity,StartDate,EndDate</stringValue>
+                    <stringValue>Name,ProdSubsc, POC ProdSubsc,Account,Opportunity,StartDate,EndDate,ItemCount,OnBehalfCount</stringValue>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -282,8 +327,8 @@
         <showHeader>true</showHeader>
     </screens>
     <start>
-        <locationX>50</locationX>
-        <locationY>50</locationY>
+        <locationX>49</locationX>
+        <locationY>184</locationY>
         <connector>
             <targetReference>checkSource</targetReference>
         </connector>
@@ -304,6 +349,13 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>Operation</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
     </variables>
     <variables>
         <description>Product ID</description>

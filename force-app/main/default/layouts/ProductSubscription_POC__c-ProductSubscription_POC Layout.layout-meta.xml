@@ -26,15 +26,42 @@
                 <field>Status__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>NrOfItems__c</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Edit</behavior>
                 <field>ExternalID__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
+    </layoutSections>
+    <layoutSections>
+        <customLabel>true</customLabel>
+        <detailHeading>true</detailHeading>
+        <editHeading>true</editHeading>
+        <label>statistics section</label>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Number_of_Expected_Items__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>NrOfQLI_Items__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>MaxItemOrder__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>NrOfItemsConsolidated__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>NrofOnBehalfItems__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <style>TwoColumnsLeftToRight</style>
     </layoutSections>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -65,32 +92,16 @@
         <layoutColumns/>
         <style>CustomLinks</style>
     </layoutSections>
-    <layoutSections>
-        <customLabel>true</customLabel>
-        <detailHeading>true</detailHeading>
-        <editHeading>true</editHeading>
-        <label>PSIs</label>
-        <layoutColumns>
-            <layoutItems>
-                <height>300</height>
-                <page>vf_PSI_on_PSPOC</page>
-                <showLabel>false</showLabel>
-                <showScrollbars>true</showScrollbars>
-                <width>100%</width>
-            </layoutItems>
-        </layoutColumns>
-        <style>OneColumn</style>
-    </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
         <fields>Start_Date__c</fields>
         <fields>End_Date__c</fields>
+        <fields>itemOrder__c</fields>
         <fields>Parent_PS__c</fields>
+        <fields>OppType__c</fields>
         <fields>OriginQuote_Line__c</fields>
         <fields>OriginOpportunity__c</fields>
-        <fields>Quantity__c</fields>
         <fields>QuoteItem_NetTotal__c</fields>
-        <fields>Duration__c</fields>
         <fields>RECORDTYPE</fields>
         <relatedList>Product_SubscriptionItem__c.ParentSubscription__c</relatedList>
         <sortField>Start_Date__c</sortField>
@@ -102,7 +113,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h2g000000NRUw</masterLabel>
+        <masterLabel>00h8A000000lGkV</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

@@ -14,12 +14,13 @@ global class batchReplicateProductSubscriptionPOC implements Database.Batchable<
             { 
             System.debug('CSABAX s = ' + ar); 
             String oppId = String.valueof(ar.get('Related_Opportunity__c'));
-            newPSPOCs = BuildSubscriptionPOC.buildSubscriptionFromOpportunity4AppProds(oppId);
+            //newPSPOCs = BuildSubscriptionPOC.buildSubscriptionFromOpportunity4AppProds(oppId);
+            BuildSubscriptionPOC.buildSubscriptionFromOpportunityAccountLink(oppId);
             } 
 
         for(ID subscrID :newPSPOCs)
             {
-            ProductSubscriptionUtility.DeleteConsolidatedItems(subscrID,false);    
+            //ProductSubscriptionUtility.DeleteConsolidatedItems(subscrID,false);    
             }
     }
  
@@ -52,6 +53,7 @@ global class batchReplicateProductSubscriptionPOC implements Database.Batchable<
             String query = 'SELECT Related_Opportunity__c, count(ID)  FROM ProductSubscriptionOpportunity__c where Related_Opportunity__r.SBQQ__PrimaryQuote__c != NULL ';
             query = query + ' and Related_Opportunity__r.StageName in (\'Closed DeBook Non-Quota\',\'Closed DeBook Quota\',\'Closed Won\') ';
             query = query + ' group by Related_Opportunity__c order by Related_Opportunity__c  desc limit 5000';
+
             results = Database.query(query);            
         } 
  

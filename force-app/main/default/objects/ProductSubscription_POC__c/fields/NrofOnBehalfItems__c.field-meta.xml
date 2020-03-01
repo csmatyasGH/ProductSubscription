@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NrofOnBehalfItems__c</fullName>
+    <externalId>false</externalId>
+    <label>NrofOnBehalf Items</label>
+    <summaryFilterItems>
+        <field>Product_SubscriptionItem__c.Creation_Type__c</field>
+        <operation>equals</operation>
+        <value>on-Behalf</value>
+    </summaryFilterItems>
+    <summaryFilterItems>
+        <field>Product_SubscriptionItem__c.RecordTypeId</field>
+        <operation>equals</operation>
+        <value>QLI Based</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Product_SubscriptionItem__c.ParentSubscription__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

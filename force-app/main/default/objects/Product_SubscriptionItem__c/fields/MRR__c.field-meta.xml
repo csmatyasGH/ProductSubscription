@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>MRR__c</fullName>
-    <description>Calculated Monhtly revenue</description>
+    <description>Calculated Monhtly revenue
+TermNetValue__c * 30.45 / Day_Duration__c</description>
     <externalId>false</externalId>
-    <formula>TermNetValue__c * 30.45 / Day_Duration__c</formula>
+    <formula>Net_Value__c  * 30.45 / Day_Duration__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>MRR</label>
     <precision>18</precision>
