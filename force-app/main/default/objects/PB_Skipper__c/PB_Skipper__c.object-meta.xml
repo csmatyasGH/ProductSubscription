@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>try to skip PB  depending on the value. It  can store  1  PB  at a  time but  from test class we create  different records before each  Object creation/update here we want to skip  the PB</description>
+    <enableFeeds>false</enableFeeds>
+    <label>PB Skipper</label>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -86,10 +86,10 @@ if(operation == 'Reset')
 
 if(operation == 'BuildFromOpp') 
   {
-   if(isOnBehalf == true)
-      {
+   //if(isOnBehalf == true) Always call this
+   //   {
          BuildSubscriptionPOC.buildSubscriptionFromOpportunityAccountLink(oppId);   
-      }  
+   //   }  
 
   }
 
@@ -105,7 +105,6 @@ if(operation == 'BuildFromOpp')
    ps2Merge.add(psid);       //psid is the POC ID    
    MergeAllItems2Terms(ps2Merge);
   }   
-
 
 }
 
@@ -488,10 +487,11 @@ public static void MergeAllItems2Terms(Set<Id> thePSIDs)
             if(i == 0)
                {
                 sD = nextTerm.StartDate__c;
+                eD = nextTerm.EndDate__c;                
                }
             else 
                {
-               eD = nextTerm.EndDate__c;
+               eD = nextTerm.EndDate__c; //keep updatign till last item
                }   
          mapextID2PS.put(nextTerm.SubscriptionKeyWithTerm__c,thePS); 
          }
@@ -530,7 +530,7 @@ public static void MergeAllItems2Terms(Set<Id> thePSIDs)
       Date sd = date.newinstance(pst.StartDate__c.year(),pst.StartDate__c.month(), pst.StartDate__c.day());
       Date ed = date.newinstance(pst.EndDate__c.year(),pst.EndDate__c.month(), pst.EndDate__c.day());   
       Date td = date.newinstance(System.Today().year(),System.Today().month(), System.Today().day());           
-      if(sd < td && ed > td )
+      if(sd <= td && ed >= td )
          {
             System.Debug('CSABAX current term matched get PS  from map ' + mapextID2PS.size() + ' extID = ' + pst.SubscriptionKeyWithTerm__c);
             ProductSubscription__c currentPS =  mapextID2PS.get(pst.SubscriptionKeyWithTerm__c);
@@ -555,7 +555,6 @@ public static void MergeAllItems2Terms(Set<Id> thePSIDs)
 
 /********************************************************************************************************************************************* 
 return either a new Term or the passed term updated with fields from Source Item
-Keep al fields excepting: ARR/MRR/TSV/Quantity/Start-End Dates
 *********************************************************************************************************************************************/
 private static ProductSubscriptionTerm__c convertItem2term(Product_SubscriptionItem__c item,ProductSubscriptionTerm__c term, String mergenew)
 {   

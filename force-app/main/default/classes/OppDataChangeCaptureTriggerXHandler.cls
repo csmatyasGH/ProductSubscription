@@ -43,12 +43,27 @@ public with sharing class OppDataChangeCaptureTriggerXHandler extends TriggerX
               }
           }
       
+        } //end for  
       
-        } //end for   
     } 
 
+    @testVisible
+    /***********************************************************************
+    tranferr here for testability
+    ***********************************************************************/
+    private static List<ID> invokeQueueable4FirstPOC(List<String> recordIds)
+    {
+      List<ID> pocs2Consolidate =  new List<ID>();
 
-  
+      for(String oppId :recordIds)
+      {
+       set<ID> pocIDs = BuildSubscriptionPOC.buildSubscriptionFromOpportunityAccountLink(oppID);
+       pocs2Consolidate.addAll(pocIDs);     //call the queueable from here
+       System.enqueueJob(new queueableConsolidatePSIs(pocs2Consolidate,0));     
+      } 
+      
+      return pocs2Consolidate;
+    } 
 
 
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DoSkip__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>when set to true the PB  will be skipped (used in test classes)</description>
+    <externalId>false</externalId>
+    <label>DoSkip</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

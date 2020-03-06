@@ -7,9 +7,6 @@
         <locationY>467</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
-        <connector>
-            <targetReference>Product_Subscription_Items</targetReference>
-        </connector>
         <inputParameters>
             <name>operation</name>
             <value>
@@ -32,13 +29,10 @@
     <actionCalls>
         <name>BuildProdSubs4Opp</name>
         <label>BuildProdSubs4Opp</label>
-        <locationX>806</locationX>
-        <locationY>203</locationY>
+        <locationX>809</locationX>
+        <locationY>183</locationY>
         <actionName>ProductSubscriptionUtility</actionName>
         <actionType>apex</actionType>
-        <connector>
-            <targetReference>PSItems_from_Opp</targetReference>
-        </connector>
         <inputParameters>
             <name>oppID</name>
             <value>
@@ -49,32 +43,6 @@
             <name>operation</name>
             <value>
                 <stringValue>BuildFromOpp</stringValue>
-            </value>
-        </inputParameters>
-    </actionCalls>
-    <actionCalls>
-        <name>Create_onBehalf_Op_POC</name>
-        <label>Create onBehalf Op POC</label>
-        <locationX>812</locationX>
-        <locationY>337</locationY>
-        <actionName>ProductSubscriptionUtility</actionName>
-        <actionType>apex</actionType>
-        <inputParameters>
-            <name>operation</name>
-            <value>
-                <stringValue>BuildFromOpp</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>oppID</name>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>isOnBehalf</name>
-            <value>
-                <elementReference>onBehalf</elementReference>
             </value>
         </inputParameters>
     </actionCalls>
@@ -119,34 +87,9 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>IsOnBehalf</targetReference>
+                <targetReference>BuildProdSubs4Opp</targetReference>
             </connector>
             <label>isOpp</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>IsOnBehalf</name>
-        <label>IsOnBehalf</label>
-        <locationX>559</locationX>
-        <locationY>270</locationY>
-        <defaultConnector>
-            <targetReference>BuildProdSubs4Opp</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>OwnDeal</defaultConnectorLabel>
-        <rules>
-            <name>onBehalf</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>onBehalfOpp</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Create_onBehalf_Op_POC</targetReference>
-            </connector>
-            <label>onBehalf</label>
         </rules>
     </decisions>
     <decisions>
@@ -174,7 +117,7 @@
             <label>isMerge</label>
         </rules>
     </decisions>
-    <description>build PS POC  from Opp or PS 2.1</description>
+    <description>build PS POC  from Opp or PS 8.0 (NO AURA LC simplified)</description>
     <interviewLabel>BuildSubscriptionsFromOpp {!$Flow.CurrentDateTime}</interviewLabel>
     <label>BuildSubscriptionsPOC</label>
     <processMetadataValues>
@@ -220,112 +163,6 @@
             <field>Product__c</field>
         </outputAssignments>
     </recordLookups>
-    <screens>
-        <name>Product_Subscription_Items</name>
-        <label>Product Subscription Items</label>
-        <locationX>1058</locationX>
-        <locationY>468</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <fields>
-            <name>PSItems</name>
-            <extensionName>c:LightningDataTable</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>childObjName</name>
-                <value>
-                    <stringValue>Product_SubscriptionItem__c</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>childObjPluralLbl</name>
-                <value>
-                    <stringValue>Product Subscription items</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>LookupFieldName</name>
-                <value>
-                    <stringValue>Parent_PS__c</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>mycolumnNames</name>
-                <value>
-                    <stringValue>Name,OriginOpportunity__r.Name,OriginQuote_Line__r.Name,Start_Date__c,End_Date__c</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>mycolumnLabels</name>
-                <value>
-                    <stringValue>Nape,Opp,QLI,StartDate,EndDate</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>recordId</name>
-                <value>
-                    <elementReference>recordId</elementReference>
-                </value>
-            </inputParameters>
-            <isRequired>true</isRequired>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>PSItems_from_Opp</name>
-        <label>Prod subscription Items from Opp</label>
-        <locationX>1054</locationX>
-        <locationY>203</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <fields>
-            <name>PSI4Opp</name>
-            <extensionName>c:LightningDataTable</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>childObjName</name>
-                <value>
-                    <stringValue>Product_SubscriptionItem__c</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>LookupFieldName</name>
-                <value>
-                    <stringValue>OriginOpportunity__c</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>childObjPluralLbl</name>
-                <value>
-                    <stringValue>Product Subscription Items</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>mycolumnNames</name>
-                <value>
-                    <stringValue>Name,Parent_PS__r.Name,ParentSubscription__r.Name,ParentSubscription__r.Account__r.Name,OriginOpportunity__r.Name,Start_Date__c,End_Date__c,ParentSubscription__r.NrOfQLI_Items__c,ParentSubscription__r.NrofOnBehalfItems__c</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>mycolumnLabels</name>
-                <value>
-                    <stringValue>Name,ProdSubsc, POC ProdSubsc,Account,Opportunity,StartDate,EndDate,ItemCount,OnBehalfCount</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>recordId</name>
-                <value>
-                    <elementReference>recordId</elementReference>
-                </value>
-            </inputParameters>
-            <isRequired>true</isRequired>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
     <start>
         <locationX>49</locationX>
         <locationY>184</locationY>
@@ -333,7 +170,7 @@
             <targetReference>checkSource</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <description>AccpountId</description>
         <name>AccId</name>

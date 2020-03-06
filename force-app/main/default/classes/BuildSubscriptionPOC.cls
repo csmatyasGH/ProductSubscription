@@ -287,7 +287,6 @@ if(lst_PS2Create.size() > 0)
 return mapAPDate2Items; // PSIs2Upsert;
 }  
 
-
 /***********************************************************************
 if we want to handle the item Order here and not after creation we have
 to inclue AccountID and productID and PSI item StartDate into map's key  

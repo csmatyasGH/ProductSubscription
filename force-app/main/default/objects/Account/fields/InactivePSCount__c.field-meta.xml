@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>InactivePSCount__c</fullName>
+    <description>Number of Product Suncription not active (Expired,Terminated)</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Number of Product Suncription not active</inlineHelpText>
+    <label>InactivePSCount</label>
+    <summaryFilterItems>
+        <field>ProductSubscription__c.SubscriptionStatus__c</field>
+        <operation>notEqual</operation>
+        <value>Active</value>
+    </summaryFilterItems>
+    <summaryForeignKey>ProductSubscription__c.Account__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <type>Summary</type>
+</CustomField>

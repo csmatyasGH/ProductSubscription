@@ -14,9 +14,6 @@ global class batchProcessAllOpps2PSPOC  implements Database.Batchable<SObject>, 
 
     global Database.QueryLocator start(Database.BatchableContext BC)
     {
-        //try to add monitoring
-        theBJM = batchProcessAccountAlocator.CreateBatchMonitor(bc.getJobId(),'batchProcessAllOpps2PSPOC',0,0,'COMMMENT SOMETHING');
-
         String query = 'SELECT ID  FROM Opportunity where  ';
         if(opp2process != NULL)
            {
@@ -40,25 +37,35 @@ global class batchProcessAllOpps2PSPOC  implements Database.Batchable<SObject>, 
             System.Debug('CSABAW Opportunity  generated ' + pocIDs.size() + ' POC records');
             for(ID poc :pocIDs)
                 {
-                    List<Product_SubscriptionItem__c> items = ProductSubscriptionUtility.ConsolidateItems4SubsBBSUM(poc);
-                    
-                    if(items != NULL && items.size() > 0)
-                      {
-                      System.Debug('CSABAW consolidated POC: ' + poc + ' has ' + items.size() + ' consolidated items');    
-                      System.Debug('CSABAW OOTB PS ID = ' + items[0].Parent_PS__c);  
-                      //ig the Paent is available we can call the Merge too
-                      Set<ID> ootbPSIDs =  new Set<ID>();
-                      ootbPSIDs.add(items[0].Parent_PS__c);  
-                      ProductSubscriptionUtility.MergeAllItems2Terms(ootbPSIDs);
-                      }
+                    ProcessMerge4ConsolidatedItem(poc); //consolidate the items and merge them to Terms 
                 }
         }   
 
      }
+
+     @TestVisible
+     /********************************************************
+     in order to better test the bacy create a separate method 
+     for merge because when call the batch we do not have Opp 
+     Line Items due to CPU Limit Exceptions  
+     ********************************************************/
+     private static void ProcessMerge4ConsolidatedItem(ID poc)
+     {
+        List<Product_SubscriptionItem__c> items = ProductSubscriptionUtility.ConsolidateItems4SubsBBSUM(poc);
+                    
+        if(items != NULL && items.size() > 0)
+          {
+          System.Debug('CSABAW consolidated POC: ' + poc + ' has ' + items.size() + ' consolidated items');    
+          System.Debug('CSABAW OOTB PS ID = ' + items[0].Parent_PS__c);  
+          //ig the Paent is available we can call the Merge too
+          Set<ID> ootbPSIDs =  new Set<ID>();
+          ootbPSIDs.add(items[0].Parent_PS__c);  
+          ProductSubscriptionUtility.MergeAllItems2Terms(ootbPSIDs);
+          }
+     } 
   
      global void finish(Database.BatchableContext BC)
      {
 
      }   
-
 }

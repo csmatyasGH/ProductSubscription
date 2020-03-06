@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SyncStatus__c</fullName>
+    <description>if value is Out of sync this mean that  the Current Term is  outdated and need recalculation</description>
+    <externalId>false</externalId>
+    <formula>IF
+(
+AND
+   (
+    CurrentSubscriptionTerm__r.StartDate__c &lt;= TODAY(),
+     CurrentSubscriptionTerm__r.EndDate__c &gt;= TODAY()
+   ),
+&quot;in sync&quot;,
+IF
+  (
+   CurrentSubscriptionTerm__c = NULL,
+   &quot;in sync&quot;, 
+   &quot;out of sync&quot;
+  )
+
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>if value is &quot;Out of sync &quot;this mean that  the Current Term is  outdated and need recalculation</inlineHelpText>
+    <label>SyncStatus</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

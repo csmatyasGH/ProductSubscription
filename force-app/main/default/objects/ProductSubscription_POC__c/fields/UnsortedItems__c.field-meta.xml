@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UnsortedItems__c</fullName>
+    <externalId>false</externalId>
+    <label>UnsortedItems</label>
+    <summaryFilterItems>
+        <field>Product_SubscriptionItem__c.itemOrder__c</field>
+        <operation>equals</operation>
+        <value/>
+    </summaryFilterItems>
+    <summaryForeignKey>Product_SubscriptionItem__c.ParentSubscription__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

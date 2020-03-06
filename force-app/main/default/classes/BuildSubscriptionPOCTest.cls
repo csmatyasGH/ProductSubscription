@@ -127,15 +127,21 @@ private static void testOppProcessBatch()
 
     Test.stopTest();
 
-    //do some assertion here
+    //do some assertion here. We should have POC  and Items too but at least POC
+    List<ProductSubscription_POC__c> thePOCs = [Select Id, Account__c, Product__c
+                                               ,(Select Id,Parent_PS__c,Start_Date__c,End_Date__c,itemOrder__c,OppCreatedDate__c,
+                                                OriginQuote_Line__c, OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__r.Name,OriginQuote_Line__r.SBQQ__Quote__r.SBQQ__Opportunity2__c,
+                                                QuoteItem_NetTotal__c,ARR__c,MRR__c,TermNetValue__c,Duration__c
+                                                from Product_SubscriptionItems__r )  
+                                                from ProductSubscription_POC__c ];
 
-
+    System.assertEquals(thePOCs.size()>0,true, 'we have POC');                                            
 }
 
 @istest
 /****************************************
-test the Data Chnage Capture code.
-Test only the fact that the Event is fired
+test the Data Change Capture for an Opp.
+Test only the that the Event has fired.
 and BuildSubscriptionPOC method is called
 Do not care about the result of that call
 because that is tested elsewhere.
@@ -157,7 +163,7 @@ private static void testOpportunityDCC()
 
     Test.startTest();  
 
-    opp4OD.stageName = 'Closed Won';
+    opp4OD.stageName = 'Inbound';
     update opp4OD;
 
     Test.stopTest();
@@ -165,9 +171,16 @@ private static void testOpportunityDCC()
     Test.getEventBus().deliver();
 
     //do some assertion is possible
+    list<EventBusSubscriber> ebs = [Select id,Topic  from EventBusSubscriber  where Topic='OpportunityChangeEvent' and Type='ApexTrigger'];
+    System.assertEquals(ebs.size(),1,ebs[0]);
+
+    //the above does not test the entire Data Change Capture chain because closing opp have some dependencies which throw exception sometime
+    List<String> oppIDs = new List<String>();
+    oppIDs.add(opp4OD.id);
+    List<ID> pocIDs = OppDataChangeCaptureTriggerXHandler.invokeQueueable4FirstPOC(oppIDs);
+    System.assertEquals(pocIDs.size(),0,'We do not expect POC due to not closing Opp');
 
 }
-
 
 @istest
 /*******************************************
