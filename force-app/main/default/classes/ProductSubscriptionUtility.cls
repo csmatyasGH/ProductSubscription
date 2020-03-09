@@ -1194,34 +1194,7 @@ return retval;
 }
 
 
-/****************************************************************************************************************************
-//if  are contingent we should check if cc and item has the same value
-//if YES we extend the cc's End Date to the full range
-//if NO the item will be the new cc and will be returned
-//the original cc will be  a final on and the returned will serv as new cc for further iterations
 
-private static Product_SubscriptionItem__c handleContingent(Product_SubscriptionItem__c cc, Product_SubscriptionItem__c item)
-{
-Product_SubscriptionItem__c retval = new Product_SubscriptionItem__c(RecordTypeID = consRTID);
-
-if(cc.QuoteItem_Value__c == item.QuoteItem_Value__c) //here we should check the Quantity and unit price not the total but not sure!!!!????
-  {
-   cc.End_Date__c = item.End_Date__c;
-   cc.Duration__c = cc.Start_Date__c.monthsBetween(item.End_Date__c);   
-   cc.Type__c = 'CONTINGENT';
-   cc.Net_Value__c = cc.Net_Value__c + cc.QuoteItem_Value__c;  
-   return null;
-  }
-else 
-  {
-   retval = item.clone();
-   retval.Net_Value__c = item.QuoteItem_Value__c;   
-   retval.RecordTypeID = consRTID;
-  }
-
-return retval;    
-}
-****************************************************************************************************************************/
 
 
 /*************************************************************************************************************************
@@ -1548,7 +1521,34 @@ for(integer i = 1; i<itemcount; i++)
 }
 ********************************************/
 
+/****************************************************************************************************************************
+//if  are contingent we should check if cc and item has the same value
+//if YES we extend the cc's End Date to the full range
+//if NO the item will be the new cc and will be returned
+//the original cc will be  a final on and the returned will serv as new cc for further iterations
 
+private static Product_SubscriptionItem__c handleContingent(Product_SubscriptionItem__c cc, Product_SubscriptionItem__c item)
+{
+Product_SubscriptionItem__c retval = new Product_SubscriptionItem__c(RecordTypeID = consRTID);
+
+if(cc.QuoteItem_Value__c == item.QuoteItem_Value__c) //here we should check the Quantity and unit price not the total but not sure!!!!????
+  {
+   cc.End_Date__c = item.End_Date__c;
+   cc.Duration__c = cc.Start_Date__c.monthsBetween(item.End_Date__c);   
+   cc.Type__c = 'CONTINGENT';
+   cc.Net_Value__c = cc.Net_Value__c + cc.QuoteItem_Value__c;  
+   return null;
+  }
+else 
+  {
+   retval = item.clone();
+   retval.Net_Value__c = item.QuoteItem_Value__c;   
+   retval.RecordTypeID = consRTID;
+  }
+
+return retval;    
+}
+****************************************************************************************************************************/
 
 
 
